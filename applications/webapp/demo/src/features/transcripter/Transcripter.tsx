@@ -6,7 +6,7 @@ import { Message } from "@aws-sdk/eventstream-marshaller";
 const util_utf8_node = require("@aws-sdk/util-utf8-node");
 const marshaller = require("@aws-sdk/eventstream-marshaller");
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(util_utf8_node.toUtf8, util_utf8_node.fromUtf8);
-const mic = require("microphone-stream").default;
+const MicrophoneStream = require("microphone-stream").default;
 
 export interface TranscripterProps {
 }
@@ -21,8 +21,7 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
     private webSocketHost: string;
     private webSocketPort: string;
     private webSocket: WebSocket | undefined;
-    private micStream: any | undefined;
-    private media: MediaStream | undefined;
+    private tracks: MediaStreamTrack[];
 
     static mapStateToProps(state: any) {
         return { ...state.transcripter };
@@ -91,7 +90,7 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
     }
 
     convertAudioToBinaryMessage(audioChunk: Float32Array): Uint8Array {
-        let raw = mic.toRaw(audioChunk);
+        let raw = MicrophoneStream.toRaw(audioChunk);
 
         if (raw == null)
             return new Uint8Array(0);
@@ -124,23 +123,52 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
         };
     }
     async record() {
-        window.navigator.mediaDevices.getUserMedia({
-            "video": false,
-            "audio": true
-        }).then((mediaStream: MediaStream) => {
-            this.micStream = new mic();
-            this.micStream?.on("data", (rawAudioChunk: Float32Array) => {
-                let binary = this.convertAudioToBinaryMessage(rawAudioChunk);
-                if (this.webSocket?.readyState === this.webSocket?.OPEN)
-                    this.webSocket?.send(binary);
+        navigator.mediaDevices.getUserMedia({ video: false, audio: true })
+            .then((stream: MediaStream) => {
+                this.tracks = stream.getAudioTracks();
+                this.tracks[0].addEventListener("data", () => {
+                    console.log("data");
+                });
+            }).catch(function (error: Error) {
+                console.log(error);
             });
-        }).catch((error) => {
-            console.error(error);
-            this.disconnect();
-        });
+        // let tracks: MediaStreamTrack[];
+        // window.navigator.mediaDevices.getUserMedia({
+        //     "video": false,
+        //     "audio": true
+        // }).then((mediaStream: MediaStream) => {
+        //     tracks = mediaStream.getAudioTracks();
+        //     this.micStream?.setStream(mediaStream);
+        // }).catch((error) => {
+        //     console.error(error);
+        //     for (let index = 0; index < tracks.length; index++) {
+        //         const element = tracks[index];
+        //         element.stop();
+        //     }
+        //     this.disconnect();
+        // });
+        // this.micStream?.on("data", (rawAudioChunk: Float32Array) => {
+        //     try {
+        //         let binary = this.convertAudioToBinaryMessage(rawAudioChunk);
+        //         if (this.webSocket?.readyState === this.webSocket?.OPEN)
+        //             this.webSocket?.send(binary);
+        //     }
+        //     catch (error) {
+        //         this.disconnect();
+        //         for (let index = 0; index < tracks.length; index++) {
+        //             const element = tracks[index];
+        //             element.stop();
+        //         }
+        //         console.error(error);
+        //     }
+        // });
     }
 
     disconnect() {
+        for (let index = 0; index < this.tracks?.length || 0; index++) {
+            const element = this.tracks[index];
+            element.stop();
+        }
         this.webSocket?.close();
     }
 
@@ -168,6 +196,7 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
         super(props);
         this.webSocketHost = process.env.REACT_APP_WEBSOCKET_HOST || "localhost";
         this.webSocketPort = process.env.REACT_APP_WEBSOCKET_PORT || "8080";
+        this.tracks = new Array<MediaStreamTrack>();
     }
 }
 
