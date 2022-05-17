@@ -30,6 +30,7 @@ export class TranscribeStreamingJobService {
     async transcribeStream() {
         const options = this.options;
         async function* getAsyncIterator() {
+            trace("reading chunk");
             const chunk = options?.readableStream?.read();
             yield { AudioEvent: { AudioChunk: chunk } };
         }

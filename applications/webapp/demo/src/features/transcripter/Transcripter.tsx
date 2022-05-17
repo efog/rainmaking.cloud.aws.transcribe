@@ -1,4 +1,5 @@
 import { CONNECTED, CONNECTING, DISCONNECTED, setSocketState } from "./transcripter-slice";
+import { Buffer } from "buffer";
 import { Component } from "react";
 import { connect } from "react-redux";
 import { Message } from "@aws-sdk/eventstream-marshaller";
@@ -6,7 +7,6 @@ import { Message } from "@aws-sdk/eventstream-marshaller";
 const util_utf8_node = require("@aws-sdk/util-utf8-node");
 const marshaller = require("@aws-sdk/eventstream-marshaller");
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(util_utf8_node.toUtf8, util_utf8_node.fromUtf8);
-const MicrophoneStream = require("microphone-stream").default;
 
 export interface TranscripterProps {
 }
@@ -16,12 +16,29 @@ export interface TranscripterInternalProps {
     socketState: any
 }
 
+
+
 class Transcripter extends Component<TranscripterProps | TranscripterInternalProps> {
 
     private webSocketHost: string;
     private webSocketPort: string;
     private webSocket: WebSocket | undefined;
     private tracks: MediaStreamTrack[];
+    private audioContext: AudioContext | undefined;
+    private recorder: AudioWorkletNode | undefined;
+    private bufferSize: number | null;
+    private inputChannels = 1;
+    private outputChannels = 1;
+    private source: MediaStreamAudioSourceNode | undefined;
+
+    constructor(props: TranscripterProps) {
+        super(props);
+        this.webSocketHost = process.env.REACT_APP_WEBSOCKET_HOST || "localhost";
+        this.webSocketPort = process.env.REACT_APP_WEBSOCKET_PORT || "8080";
+        this.tracks = new Array<MediaStreamTrack>();
+        this.bufferSize = typeof window.AudioContext === "undefined" ? 4096 : null;
+        this.recorder = undefined;
+    }
 
     static mapStateToProps(state: any) {
         return { ...state.transcripter };
@@ -90,23 +107,16 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
     }
 
     convertAudioToBinaryMessage(audioChunk: Float32Array): Uint8Array {
-        let raw = MicrophoneStream.toRaw(audioChunk);
-
-        if (raw == null)
-            return new Uint8Array(0);
-
         // downsample and convert the raw audio bytes to PCM
-        let downsampledBuffer = this.downsampleBuffer(raw);
+        let downsampledBuffer = this.downsampleBuffer(audioChunk);
         let pcmEncodedBuffer = this.pcmEncode(downsampledBuffer);
-
         // add the right JSON headers and structure to the message
         let audioEventMessage = this.getAudioEventMessage(Buffer.from(pcmEncodedBuffer));
-
         //convert the JSON object + headers into a binary event stream message
         let binary = eventStreamMarshaller.marshall(audioEventMessage);
-
         return binary;
     }
+    
     getAudioEventMessage(buffer: Buffer): Message {
         return {
             headers: {
@@ -123,45 +133,20 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
         };
     }
     async record() {
-        navigator.mediaDevices.getUserMedia({ video: false, audio: true })
-            .then((stream: MediaStream) => {
-                this.tracks = stream.getAudioTracks();
-                this.tracks[0].addEventListener("data", () => {
-                    console.log("data");
-                });
-            }).catch(function (error: Error) {
-                console.log(error);
-            });
-        // let tracks: MediaStreamTrack[];
-        // window.navigator.mediaDevices.getUserMedia({
-        //     "video": false,
-        //     "audio": true
-        // }).then((mediaStream: MediaStream) => {
-        //     tracks = mediaStream.getAudioTracks();
-        //     this.micStream?.setStream(mediaStream);
-        // }).catch((error) => {
-        //     console.error(error);
-        //     for (let index = 0; index < tracks.length; index++) {
-        //         const element = tracks[index];
-        //         element.stop();
-        //     }
-        //     this.disconnect();
-        // });
-        // this.micStream?.on("data", (rawAudioChunk: Float32Array) => {
-        //     try {
-        //         let binary = this.convertAudioToBinaryMessage(rawAudioChunk);
-        //         if (this.webSocket?.readyState === this.webSocket?.OPEN)
-        //             this.webSocket?.send(binary);
-        //     }
-        //     catch (error) {
-        //         this.disconnect();
-        //         for (let index = 0; index < tracks.length; index++) {
-        //             const element = tracks[index];
-        //             element.stop();
-        //         }
-        //         console.error(error);
-        //     }
-        // });
+        const microphone = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+        this.tracks = microphone.getTracks();
+        const audioContext = new AudioContext();
+        this.source = audioContext.createMediaStreamSource(microphone);
+        await audioContext.audioWorklet.addModule(`${process.env.PUBLIC_URL}/worklet/recorder-worklet.js`);
+        // audioContext.audioWorklet.addModule("https://assets.rainmaking.cloud/scripts/recorder-worklet.js");
+        this.recorder = new AudioWorkletNode(audioContext, "recorder.worklet");
+        this.source.connect(this.recorder)
+            .connect(audioContext.destination);
+        this.recorder.port.onmessage = (e: { data: Float32Array }) => {
+            const audioEventMessage = this.convertAudioToBinaryMessage(e.data);
+            console.log(audioEventMessage);
+            this.webSocket?.send(audioEventMessage);
+        }
     }
 
     disconnect() {
@@ -169,6 +154,8 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
             const element = this.tracks[index];
             element.stop();
         }
+        this.source?.disconnect();
+        this.recorder?.disconnect();
         this.webSocket?.close();
     }
 
@@ -190,13 +177,6 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
             }}>Stop</button>
             <span>{(this.props as TranscripterInternalProps).socketState}</span>
         </div>;
-    }
-
-    constructor(props: TranscripterProps) {
-        super(props);
-        this.webSocketHost = process.env.REACT_APP_WEBSOCKET_HOST || "localhost";
-        this.webSocketPort = process.env.REACT_APP_WEBSOCKET_PORT || "8080";
-        this.tracks = new Array<MediaStreamTrack>();
     }
 }
 

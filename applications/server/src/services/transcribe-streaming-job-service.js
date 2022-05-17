@@ -49,6 +49,7 @@ class TranscribeStreamingJobService {
             function getAsyncIterator() {
                 var _a;
                 return __asyncGenerator(this, arguments, function* getAsyncIterator_1() {
+                    trace("reading chunk");
                     const chunk = (_a = options === null || options === void 0 ? void 0 : options.readableStream) === null || _a === void 0 ? void 0 : _a.read();
                     yield yield __await({ AudioEvent: { AudioChunk: chunk } });
                 });

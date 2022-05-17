@@ -54,6 +54,7 @@ wss.on("connection", (ws, request, client) => {
     const chunks = [];
     const readableStream = new stream_1.Readable({
         read(size) {
+            trace("invoked read");
             let retVal;
             if (chunks.length === 0) {
                 retVal = new Float32Array(size);
@@ -61,8 +62,7 @@ wss.on("connection", (ws, request, client) => {
             else {
                 retVal = chunks.slice(0, size);
             }
-            retVal = downSampleBuffer(chunks.slice(0, size), 16000, 16000);
-            return pcmEncode(retVal);
+            return retVal;
         }
     });
     const path = new url_1.URL(request.url, "http://localhost");

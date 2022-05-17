@@ -29,7 +29,7 @@ const pcmEncode = (input: Float32Array) => {
     return buffer;
 };
 
-const downSampleBuffer = (buffer: Float32Array | any[], inputSampleRate = 44100, outputSampleRate = 16000) : Float32Array => {
+const downSampleBuffer = (buffer: Float32Array | any[], inputSampleRate = 44100, outputSampleRate = 16000): Float32Array => {
     const sampleRateRatio = inputSampleRate / outputSampleRate;
     const newLength = Math.round(buffer.length / sampleRateRatio);
     const result = new Float32Array(newLength);
@@ -55,14 +55,14 @@ wss.on("connection", (ws: any, request: any, client: any) => {
     const chunks: any[] = [];
     const readableStream = new Readable({
         read(size: number) {
+            trace("invoked read");
             let retVal: any[] | Float32Array;
             if (chunks.length === 0) {
                 retVal = new Float32Array(size);
             } else {
                 retVal = chunks.slice(0, size);
             }
-            retVal = downSampleBuffer(chunks.slice(0, size), 16000, 16000) as Float32Array;
-            return pcmEncode(retVal);
+            return retVal;
         }
     });
     const path = new URL(request.url, "http://localhost");
