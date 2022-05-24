@@ -8,7 +8,6 @@ const debug_1 = __importDefault(require("debug"));
 const transcribe_streaming_job_service_1 = require("./services/transcribe-streaming-job-service");
 const url_1 = require("url");
 const ws_1 = require("ws");
-const stream_1 = require("stream");
 const debug = (0, debug_1.default)("DEBUG::SERVER::index.ts");
 const trace = (0, debug_1.default)("TRACE::SERVER::index.ts");
 const info = (0, debug_1.default)("INFO::SERVER::index.ts");
@@ -49,33 +48,22 @@ const downSampleBuffer = (buffer, inputSampleRate = 44100, outputSampleRate = 16
     }
     return result;
 };
-wss.on("connection", (ws, request, client) => {
+wss.on("connection", (inputWebSocket, request, client) => {
     trace(`connection from client ${JSON.stringify(client)}`);
-    const chunks = [];
-    const readableStream = new stream_1.Readable({
-        read(size) {
-            trace("invoked read");
-            let retVal;
-            if (chunks.length === 0) {
-                retVal = new Float32Array(size);
-            }
-            else {
-                retVal = chunks.slice(0, size);
-            }
-            return retVal;
-        }
-    });
     const path = new url_1.URL(request.url, "http://localhost");
     const transcribeClient = undefined;
-    const transcribeStreamingJobService = new transcribe_streaming_job_service_1.TranscribeStreamingJobService({ path, readableStream, transcribeClient });
-    ws.on("message", (data) => {
-        trace(`received data for ${path}`);
-        chunks.push(data);
-    });
-    ws.on("close", (ev) => {
+    const awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID;
+    const awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+    const awsSessionToken = process.env.AWS_SESSION_TOKEN;
+    const languageCode = "en-US";
+    const region = process.env.AWS_DEFAULT_REGION;
+    const sampleRate = "16000";
+    const options = { awsAccessKeyId, awsSecretAccessKey, awsSessionToken, inputWebSocket, languageCode, path, region, sampleRate, transcribeClient };
+    inputWebSocket.on("close", (ev) => {
         trace(`connection closed for ${path}`);
     });
     trace(`connection opened for path ${path}`);
+    const transcribeStreamingJobService = new transcribe_streaming_job_service_1.TranscribeStreamingJobService(options);
     transcribeStreamingJobService.transcribeStream();
 });
 server.on("upgrade", (request, socket, head) => {

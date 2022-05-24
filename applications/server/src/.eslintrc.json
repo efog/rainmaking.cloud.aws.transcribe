@@ -22,6 +22,8 @@
         "indent": ["error", 4],
         "space-before-function-paren": "off",
         "lines-between-class-members": "off",
-        "generator-star-spacing": "off"
+        "generator-star-spacing": "off",
+        "padded-blocks": "off",
+        "camelcase": "off"
     }
 }

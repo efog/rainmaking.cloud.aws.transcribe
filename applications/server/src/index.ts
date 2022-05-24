@@ -1,9 +1,8 @@
 import { createServer } from "http";
 import Debug from "debug";
-import { TranscribeStreamingJobService } from "./services/transcribe-streaming-job-service";
+import { TranscribeStreamingJobService, TranscribeStreamingJobServiceOptions } from "./services/transcribe-streaming-job-service";
 import { URL } from "url";
-import { WebSocketServer } from "ws";
-import { Readable, Writable } from "stream";
+import { WebSocket, WebSocketServer, MessageEvent } from "ws";
 
 const debug = Debug("DEBUG::SERVER::index.ts");
 const trace = Debug("TRACE::SERVER::index.ts");
@@ -50,32 +49,26 @@ const downSampleBuffer = (buffer: Float32Array | any[], inputSampleRate = 44100,
     return result;
 };
 
-wss.on("connection", (ws: any, request: any, client: any) => {
+wss.on("connection", (inputWebSocket: WebSocket, request: any, client: any) => {
+
     trace(`connection from client ${JSON.stringify(client)}`);
-    const chunks: any[] = [];
-    const readableStream = new Readable({
-        read(size: number) {
-            trace("invoked read");
-            let retVal: any[] | Float32Array;
-            if (chunks.length === 0) {
-                retVal = new Float32Array(size);
-            } else {
-                retVal = chunks.slice(0, size);
-            }
-            return retVal;
-        }
-    });
     const path = new URL(request.url, "http://localhost");
     const transcribeClient = undefined;
-    const transcribeStreamingJobService = new TranscribeStreamingJobService({ path, readableStream, transcribeClient });
-    ws.on("message", (data: any) => {
-        trace(`received data for ${path}`);
-        chunks.push(data);
-    });
-    ws.on("close", (ev: Event) => {
+    const awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID;
+    const awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+    const awsSessionToken = process.env.AWS_SESSION_TOKEN;
+    const languageCode = "en-US";
+    const region = process.env.AWS_DEFAULT_REGION;
+    const sampleRate = "16000";
+    const options = { awsAccessKeyId, awsSecretAccessKey, awsSessionToken, inputWebSocket, languageCode, path, region, sampleRate, transcribeClient } as TranscribeStreamingJobServiceOptions;
+
+    inputWebSocket.on("close", (ev: Event) => {
         trace(`connection closed for ${path}`);
     });
+
     trace(`connection opened for path ${path}`);
+
+    const transcribeStreamingJobService = new TranscribeStreamingJobService(options);
     transcribeStreamingJobService.transcribeStream();
 });
 server.on("upgrade", (request, socket, head): void => {

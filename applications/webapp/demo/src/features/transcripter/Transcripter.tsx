@@ -2,11 +2,11 @@ import { CONNECTED, CONNECTING, DISCONNECTED, setSocketState } from "./transcrip
 import { Buffer } from "buffer";
 import { Component } from "react";
 import { connect } from "react-redux";
+import { EventStreamMarshaller } from "@aws-sdk/eventstream-marshaller";
 import { Message } from "@aws-sdk/eventstream-marshaller";
 
 const util_utf8_node = require("@aws-sdk/util-utf8-node");
-const marshaller = require("@aws-sdk/eventstream-marshaller");
-const eventStreamMarshaller = new marshaller.EventStreamMarshaller(util_utf8_node.toUtf8, util_utf8_node.fromUtf8);
+const eventStreamMarshaller = new EventStreamMarshaller(util_utf8_node.toUtf8, util_utf8_node.fromUtf8);
 
 export interface TranscripterProps {
 }
@@ -15,8 +15,6 @@ export interface TranscripterInternalProps {
     setSocketState: Function,
     socketState: any
 }
-
-
 
 class Transcripter extends Component<TranscripterProps | TranscripterInternalProps> {
 
@@ -116,7 +114,7 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
         let binary = eventStreamMarshaller.marshall(audioEventMessage);
         return binary;
     }
-    
+
     getAudioEventMessage(buffer: Buffer): Message {
         return {
             headers: {
@@ -144,7 +142,7 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
             .connect(audioContext.destination);
         this.recorder.port.onmessage = (e: { data: Float32Array }) => {
             const audioEventMessage = this.convertAudioToBinaryMessage(e.data);
-            console.log(audioEventMessage);
+            console.log(JSON.stringify(audioEventMessage));
             this.webSocket?.send(audioEventMessage);
         }
     }
