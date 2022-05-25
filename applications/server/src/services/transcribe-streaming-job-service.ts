@@ -96,15 +96,14 @@ export class TranscribeStreamingJobService {
             this.options.inputWebSocket.onmessage = (audioEvent: MessageEvent) => {
                 trace(`audio event type ${JSON.stringify(audioEvent.type)}`);
                 trace(`audio event data ${JSON.stringify(audioEvent.data.slice(0, 10))}`);
-                // eslint-disable-next-line n/no-deprecated-api
                 const data = audioEvent.data as Buffer;
-                const downsampledBuffer = downsampleBuffer(data, 16000, 16000);
-                // trace(`downsampled data ${JSON.stringify(downsampledBuffer)}`);
-                const pcmEncodedBuffer = pcmEncode(downsampledBuffer);
-                // trace(`pcm encoded buffer ${JSON.stringify(downsampledBuffer)}`);
-                const audioEventMessage = this.getAudioEventMessage(Buffer.from(pcmEncodedBuffer));
-                // trace(`audio event message ${JSON.stringify(audioEventMessage)}`);
-                const binary = eventStreamMarshaller.marshall(audioEventMessage);
+                // const downsampledBuffer = downsampleBuffer(data, 16000, 16000);
+                // // trace(`downsampled data ${JSON.stringify(downsampledBuffer)}`);
+                // const pcmEncodedBuffer = pcmEncode(downsampledBuffer);
+                // // trace(`pcm encoded buffer ${JSON.stringify(downsampledBuffer)}`);
+                // const audioEventMessage = this.getAudioEventMessage(Buffer.from(pcmEncodedBuffer));
+                // // trace(`audio event message ${JSON.stringify(audioEventMessage)}`);
+                // const binary = eventStreamMarshaller.marshall(audioEventMessage);
                 this.transcribeSocket?.send(data);
             };
         };
@@ -126,20 +125,5 @@ export class TranscribeStreamingJobService {
                 // toggleStartStop();
             }
         };
-        // const options = this.options;
-        // async function* getAsyncIterator() {
-        //     trace("reading chunk");
-        //     const chunk = options?.readableStream?.read();
-        //     yield { AudioEvent: { AudioChunk: chunk } };
-        // }
-        // const stream = getAsyncIterator;
-        // const command = new StartStreamTranscriptionCommand({
-        //     AudioStream: stream(),
-        //     MediaSampleRateHertz: 16000,
-        //     MediaEncoding: "pcm",
-        //     LanguageCode: "en-US"
-        // });
-        // const output = await (this.client as TranscribeStreamingClient).send(command);
-        // trace(`transcribe output ${JSON.stringify(output.RequestId)}`);
     }
 }

@@ -4,6 +4,7 @@ import { Component } from "react";
 import { connect } from "react-redux";
 import { EventStreamMarshaller } from "@aws-sdk/eventstream-marshaller";
 import { Message } from "@aws-sdk/eventstream-marshaller";
+import { Recorder } from "./recorder";
 
 const util_utf8_node = require("@aws-sdk/util-utf8-node");
 const eventStreamMarshaller = new EventStreamMarshaller(util_utf8_node.toUtf8, util_utf8_node.fromUtf8);
@@ -28,6 +29,7 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
     private inputChannels = 1;
     private outputChannels = 1;
     private source: MediaStreamAudioSourceNode | undefined;
+    private audioRecorder: Recorder | undefined;
 
     constructor(props: TranscripterProps) {
         super(props);
@@ -46,25 +48,6 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
         return {
             setSocketState: (state: string) => { dispatch(setSocketState(state)) }
         };
-    }
-
-    connect() {
-        this.webSocket = new WebSocket(`ws://${this.webSocketHost}:${this.webSocketPort}`);
-        this.webSocket.binaryType = "arraybuffer";
-        (this.props as TranscripterInternalProps).setSocketState(CONNECTING);
-        if (this.webSocket) {
-            this.webSocket.onclose = (ev: CloseEvent) => {
-                console.log(`connection closed ${JSON.stringify(ev)}`);
-                (this.props as TranscripterInternalProps).setSocketState(DISCONNECTED);
-            }
-            this.webSocket.onopen = (ev: Event) => {
-                console.log(`connection opened ${JSON.stringify(ev)}`);
-                (this.props as TranscripterInternalProps).setSocketState(CONNECTED);
-            }
-            this.webSocket.onmessage = (ev: MessageEvent) => {
-                console.log(`message received ${JSON.stringify(ev)}`);
-            }
-        }
     }
 
     pcmEncode(input: Float32Array) {
@@ -130,30 +113,51 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
             body: buffer
         };
     }
-    async record() {
-        const microphone = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
-        this.tracks = microphone.getTracks();
-        const audioContext = new AudioContext();
-        this.source = audioContext.createMediaStreamSource(microphone);
-        await audioContext.audioWorklet.addModule(`${process.env.PUBLIC_URL}/worklet/recorder-worklet.js`);
-        // audioContext.audioWorklet.addModule("https://assets.rainmaking.cloud/scripts/recorder-worklet.js");
-        this.recorder = new AudioWorkletNode(audioContext, "recorder.worklet");
-        this.source.connect(this.recorder)
-            .connect(audioContext.destination);
-        this.recorder.port.onmessage = (e: { data: Float32Array }) => {
+
+    async connect() {
+        
+        this.audioRecorder = await Recorder.start((e: { data: Float32Array }) => {
             const audioEventMessage = this.convertAudioToBinaryMessage(e.data);
             console.log(JSON.stringify(audioEventMessage));
             this.webSocket?.send(audioEventMessage);
+        });
+
+        this.webSocket = new WebSocket(`ws://${this.webSocketHost}:${this.webSocketPort}`);
+        this.webSocket.binaryType = "arraybuffer";
+        (this.props as TranscripterInternalProps).setSocketState(CONNECTING);
+        if (this.webSocket) {
+            this.webSocket.onclose = (ev: CloseEvent) => {
+                console.log(`connection closed ${JSON.stringify(ev)}`);
+                this.audioRecorder?.stop();
+                (this.props as TranscripterInternalProps).setSocketState(DISCONNECTED);
+            }
+            this.webSocket.onopen = (ev: Event) => {
+                console.log(`connection opened ${JSON.stringify(ev)}`);
+                (this.props as TranscripterInternalProps).setSocketState(CONNECTED);
+            }
+            this.webSocket.onmessage = (ev: MessageEvent) => {
+                console.log(`message received ${JSON.stringify(ev)}`);
+            }
         }
     }
 
+    async record() {
+        // const microphone = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+        // this.tracks = microphone.getTracks();
+        // const audioContext = new AudioContext();
+        // this.source = audioContext.createMediaStreamSource(microphone);
+        // await audioContext.audioWorklet.addModule(`${process.env.PUBLIC_URL}/worklet/recorder-worklet.js`);
+        // this.recorder = new AudioWorkletNode(audioContext, "recorder.worklet");
+        // this.source.connect(this.recorder)
+        //     .connect(audioContext.destination);
+        // this.recorder.port.onmessage = (e: { data: Float32Array }) => {
+        //     const audioEventMessage = this.convertAudioToBinaryMessage(e.data);
+        //     console.log(JSON.stringify(audioEventMessage));
+        //     this.webSocket?.send(audioEventMessage);
+        // }
+    }
+
     disconnect() {
-        for (let index = 0; index < this.tracks?.length || 0; index++) {
-            const element = this.tracks[index];
-            element.stop();
-        }
-        this.source?.disconnect();
-        this.recorder?.disconnect();
         this.webSocket?.close();
     }
 
@@ -162,10 +166,10 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
 
     render() {
         return <div>
-            <button onClick={(ev) => {
+            <button onClick={async (ev) => {
                 if ((this.props as TranscripterInternalProps).socketState === DISCONNECTED) {
-                    this.connect();
-                    this.record();
+                    await this.connect();
+                    // this.record();
                 }
             }}>Start</button>
             <button onClick={(ev) => {
