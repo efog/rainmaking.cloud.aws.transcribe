@@ -22,22 +22,12 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
     private webSocketHost: string;
     private webSocketPort: string;
     private webSocket: WebSocket | undefined;
-    private tracks: MediaStreamTrack[];
-    private audioContext: AudioContext | undefined;
-    private recorder: AudioWorkletNode | undefined;
-    private bufferSize: number | null;
-    private inputChannels = 1;
-    private outputChannels = 1;
-    private source: MediaStreamAudioSourceNode | undefined;
     private audioRecorder: Recorder | undefined;
 
     constructor(props: TranscripterProps) {
         super(props);
         this.webSocketHost = process.env.REACT_APP_WEBSOCKET_HOST || "localhost";
         this.webSocketPort = process.env.REACT_APP_WEBSOCKET_PORT || "8080";
-        this.tracks = new Array<MediaStreamTrack>();
-        this.bufferSize = typeof window.AudioContext === "undefined" ? 4096 : null;
-        this.recorder = undefined;
     }
 
     static mapStateToProps(state: any) {
@@ -87,9 +77,9 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
         return result;
     }
 
-    convertAudioToBinaryMessage(audioChunk: Float32Array): Uint8Array {
+    convertAudioToBinaryMessage(audioChunk: Float32Array, outputSampleRate: number = 44100): Uint8Array {
         // downsample and convert the raw audio bytes to PCM
-        let downsampledBuffer = this.downsampleBuffer(audioChunk);
+        let downsampledBuffer = this.downsampleBuffer(audioChunk, 44100, outputSampleRate);
         let pcmEncodedBuffer = this.pcmEncode(downsampledBuffer);
         // add the right JSON headers and structure to the message
         let audioEventMessage = this.getAudioEventMessage(Buffer.from(pcmEncodedBuffer));
@@ -116,13 +106,27 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
 
     async connect() {
         
-        this.audioRecorder = await Recorder.start((e: { data: Float32Array }) => {
-            const audioEventMessage = this.convertAudioToBinaryMessage(e.data);
-            console.log(JSON.stringify(audioEventMessage));
+        const sampleRate = 44100;
+        const language = "en-US";
+        const callId  = "to-be-fetched";
+        const region = "ca-central-1";
+
+        const audioHandler = (e: { data: Float32Array }) => {
+            const audioEventMessage = this.convertAudioToBinaryMessage(e.data, sampleRate);
             this.webSocket?.send(audioEventMessage);
+        };
+
+        this.audioRecorder = await Recorder.start({
+            audioHandler: audioHandler
         });
 
-        this.webSocket = new WebSocket(`ws://${this.webSocketHost}:${this.webSocketPort}`);
+        const webSocketUrl = new URL(`ws://${this.webSocketHost}:${this.webSocketPort}`);
+        webSocketUrl.searchParams.append("sampleRate", sampleRate.toString());
+        webSocketUrl.searchParams.append("language", language);
+        webSocketUrl.searchParams.append("callId", callId);
+        webSocketUrl.searchParams.append("region", region);
+        console.log(JSON.stringify(webSocketUrl));
+        this.webSocket = new WebSocket(webSocketUrl);
         this.webSocket.binaryType = "arraybuffer";
         (this.props as TranscripterInternalProps).setSocketState(CONNECTING);
         if (this.webSocket) {
@@ -139,22 +143,6 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
                 console.log(`message received ${JSON.stringify(ev)}`);
             }
         }
-    }
-
-    async record() {
-        // const microphone = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
-        // this.tracks = microphone.getTracks();
-        // const audioContext = new AudioContext();
-        // this.source = audioContext.createMediaStreamSource(microphone);
-        // await audioContext.audioWorklet.addModule(`${process.env.PUBLIC_URL}/worklet/recorder-worklet.js`);
-        // this.recorder = new AudioWorkletNode(audioContext, "recorder.worklet");
-        // this.source.connect(this.recorder)
-        //     .connect(audioContext.destination);
-        // this.recorder.port.onmessage = (e: { data: Float32Array }) => {
-        //     const audioEventMessage = this.convertAudioToBinaryMessage(e.data);
-        //     console.log(JSON.stringify(audioEventMessage));
-        //     this.webSocket?.send(audioEventMessage);
-        // }
     }
 
     disconnect() {

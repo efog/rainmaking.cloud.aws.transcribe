@@ -1,7 +1,8 @@
-import { EventEmitter } from "stream";
-
-export class StartRecordOutput {
+export interface RecorderOptions {
+    audioHandler: ((this: MessagePort, ev: MessageEvent) => any),
+    recorderWorkletUrl?: string
 }
+
 export class Recorder {
     
     public microphone: MediaStream | undefined;
@@ -15,20 +16,20 @@ export class Recorder {
         return this._onaudio;
     }
 
-    constructor(onaudioHandler: ((this: MessagePort, ev: MessageEvent) => any)) { 
+    private constructor(onaudioHandler: ((this: MessagePort, ev: MessageEvent) => any)) { 
         this._onaudio = onaudioHandler;
     }
 
-    static async start(onaudioHandler: ((this: MessagePort, ev: MessageEvent) => any)): Promise<Recorder> {
+    static async start(options: RecorderOptions): Promise<Recorder> {
         const microphone = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
         const tracks = microphone.getAudioTracks();
         const audioContext = new AudioContext();
         const source = audioContext.createMediaStreamSource(microphone);
-        await audioContext.audioWorklet.addModule(`${process.env.PUBLIC_URL}/worklet/recorder-worklet.js`);
+        await audioContext.audioWorklet.addModule(options.recorderWorkletUrl || `${process.env.PUBLIC_URL}/worklet/recorder-worklet.js`);
         const recorderWorklet = new AudioWorkletNode(audioContext, "recorder.worklet");
         source.connect(recorderWorklet).connect(audioContext.destination);
-        recorderWorklet.port.onmessage = onaudioHandler;
-        return Object.assign(new Recorder(onaudioHandler), { microphone, recorderWorklet, source, tracks });
+        recorderWorklet.port.onmessage = options.audioHandler;
+        return Object.assign(new Recorder(options.audioHandler), { microphone, recorderWorklet, source, tracks });
     }
 
     async stop() { 

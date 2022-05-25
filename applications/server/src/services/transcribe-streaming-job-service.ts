@@ -1,4 +1,4 @@
-import { StartStreamTranscriptionCommand, TranscribeStreamingClient } from "@aws-sdk/client-transcribe-streaming";
+import { TranscribeStreamingClient } from "@aws-sdk/client-transcribe-streaming";
 import { createHash } from "crypto";
 import Debug from "debug";
 import { Readable } from "stream";
@@ -6,7 +6,6 @@ import { Data, MessageEvent, WebSocket } from "ws";
 import * as marshaller from "@aws-sdk/eventstream-marshaller";
 import * as utilUtf8Node from "@aws-sdk/util-utf8-node";
 import * as v4 from "./crypto-service";
-import { downsampleBuffer, pcmEncode } from "./audio-utils";
 
 const debug = Debug("DEBUG::SERVER::SERVICES::transcribe-streaming-job-service.ts");
 const trace = Debug("TRACE::SERVER::SERVICES::transcribe-streaming-job-service.ts");
@@ -27,12 +26,6 @@ export interface TranscribeStreamingJobServiceOptions {
     region: string;
     sampleRate: string;
     transcribeClient: TranscribeStreamingClient | undefined;
-}
-
-interface SimpleMessageEvent {
-    data: Data;
-    type: string;
-    target: WebSocket;
 }
 
 export class TranscribeStreamingJobService {
@@ -97,13 +90,6 @@ export class TranscribeStreamingJobService {
                 trace(`audio event type ${JSON.stringify(audioEvent.type)}`);
                 trace(`audio event data ${JSON.stringify(audioEvent.data.slice(0, 10))}`);
                 const data = audioEvent.data as Buffer;
-                // const downsampledBuffer = downsampleBuffer(data, 16000, 16000);
-                // // trace(`downsampled data ${JSON.stringify(downsampledBuffer)}`);
-                // const pcmEncodedBuffer = pcmEncode(downsampledBuffer);
-                // // trace(`pcm encoded buffer ${JSON.stringify(downsampledBuffer)}`);
-                // const audioEventMessage = this.getAudioEventMessage(Buffer.from(pcmEncodedBuffer));
-                // // trace(`audio event message ${JSON.stringify(audioEventMessage)}`);
-                // const binary = eventStreamMarshaller.marshall(audioEventMessage);
                 this.transcribeSocket?.send(data);
             };
         };
