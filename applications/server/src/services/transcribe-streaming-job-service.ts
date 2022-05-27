@@ -1,7 +1,5 @@
-import { TranscribeStreamingClient } from "@aws-sdk/client-transcribe-streaming";
 import { createHash } from "crypto";
 import Debug from "debug";
-import { Readable } from "stream";
 import { MessageEvent, WebSocket } from "ws";
 import * as marshaller from "@aws-sdk/eventstream-marshaller";
 import * as utilUtf8Node from "@aws-sdk/util-utf8-node";
@@ -15,30 +13,51 @@ const error = Debug("ERROR::SERVER::SERVICES::transcribe-streaming-job-service.t
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(utilUtf8Node.toUtf8, utilUtf8Node.fromUtf8);
 
-export interface TranscribeStreamingJobServiceOptions {
+/**
+ * Transcribe streaming service helper instantiation settings
+ */
+export interface TranscribeStreamingJobServiceSettings {
+    /**
+     * AWS Access Key identifier
+     */
     awsAccessKeyId: string;
+    /**
+     * AWS Secret Key
+     */
     awsSecretAccessKey: string;
+    /**
+     * AWS Authenticated Session token
+     */
     awsSessionToken: string;
+    /**
+     * Input stream websocket
+     */
     inputWebSocket: WebSocket;
+    /**
+     * Amazon Transcribe Streaming session language code
+     */
     languageCode: string;
-    path: URL | undefined;
-    readableStream: Readable | undefined;
+    /**
+     * AWS Region to use
+     */
     region: string;
+    /**
+     * Audio stream sample rate
+     */
     sampleRate: string;
-    transcribeClient: TranscribeStreamingClient | undefined;
 }
 
+/**
+ * Transcribe streaming service helper class.
+ */
 export class TranscribeStreamingJobService {
 
-    private options: TranscribeStreamingJobServiceOptions;
-    private transcribeSocket: WebSocket | undefined;
-
-    constructor(options: TranscribeStreamingJobServiceOptions) {
-        this.options = options;
-    }
-
-    createPresignedURL() {
-        const endpoint = "transcribestreaming." + this.options?.region + ".amazonaws.com:8443";
+    /**
+     * Creates a presigned URL for Amazon Transcribe service using settings.
+     * @returns {string} parameterized pre-signed URL.
+     */
+    private static createPresignedURL(settings: TranscribeStreamingJobServiceSettings) {
+        const endpoint = "transcribestreaming." + settings?.region + ".amazonaws.com:8443";
         // get a preauthenticated URL that we can use to establish our WebSocket
         return v4.createPresignedURL(
             "GET",
@@ -46,13 +65,13 @@ export class TranscribeStreamingJobService {
             "/stream-transcription-websocket",
             "transcribe",
             createHash("sha256").update("", "utf8").digest("hex"), {
-                key: this.options?.awsAccessKeyId,
-                secret: this.options?.awsSecretAccessKey,
-                sessionToken: this.options?.awsSessionToken,
+                key: settings?.awsAccessKeyId,
+                secret: settings?.awsSecretAccessKey,
+                sessionToken: settings?.awsSessionToken,
                 protocol: "wss",
                 expires: 15,
-                region: this.options?.region,
-                query: "partial-results-stability=medium&enable-partial-results-stabilization=true" + "&language-code=" + this.options?.languageCode + "&media-encoding=pcm&sample-rate=" + this.options?.sampleRate
+                region: settings?.region,
+                query: "partial-results-stability=medium&enable-partial-results-stabilization=true" + "&language-code=" + settings?.languageCode + "&media-encoding=pcm&sample-rate=" + settings?.sampleRate
             }
         );
     }
@@ -60,25 +79,22 @@ export class TranscribeStreamingJobService {
     /**
      * Transcribes audio stream
      */
-    async transcribeStream() {
-        const url = this.createPresignedURL();
-        this.transcribeSocket = new WebSocket(url);
-        this.transcribeSocket.binaryType = "arraybuffer";
-        this.transcribeSocket.onopen = () => {
-            this.options.inputWebSocket.onmessage = (audioEvent: MessageEvent) => {
-                trace(`audio event type ${JSON.stringify(audioEvent.type)}`);
-                trace(`audio event data ${JSON.stringify(audioEvent.data.slice(0, 10))}`);
+    public static transcribeStream(settings: TranscribeStreamingJobServiceSettings) {
+        const url = TranscribeStreamingJobService.createPresignedURL(settings);
+        const transcribeSocket = new WebSocket(url);
+        transcribeSocket.binaryType = "arraybuffer";
+        transcribeSocket.onopen = () => {
+            settings.inputWebSocket.onmessage = (audioEvent: MessageEvent) => {
                 const data = audioEvent.data as Buffer;
-                this.transcribeSocket?.send(data);
+                transcribeSocket?.send(data);
             };
         };
-        this.transcribeSocket.onmessage = (ev: MessageEvent) => {
+        transcribeSocket.onmessage = (ev: MessageEvent) => {
             const data = Buffer.from(ev.data as any);
             const messageWrapper = eventStreamMarshaller.unmarshall(data);
             const body = Array.from(messageWrapper.body);
             const messageBody = JSON.parse(String.fromCharCode.apply(String, body));
             if (messageWrapper.headers[":message-type"].value === "event") {
-                trace("received event from Amazon Transcribe");
                 trace(JSON.stringify(messageBody));
             } else {
                 trace("received error from Amazon Transcribe");

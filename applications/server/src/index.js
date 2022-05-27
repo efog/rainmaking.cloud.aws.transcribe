@@ -21,20 +21,24 @@ const wss = new ws_1.WebSocketServer({
 wss.on("connection", (inputWebSocket, request, client) => {
     trace(`connection from client ${JSON.stringify(client)}`);
     const path = new url_1.URL(request.url, "http://localhost");
-    const transcribeClient = undefined;
     const awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID;
     const awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
     const awsSessionToken = process.env.AWS_SESSION_TOKEN;
-    const languageCode = "en-US";
-    const region = process.env.AWS_DEFAULT_REGION;
-    const sampleRate = "44100";
-    const options = { awsAccessKeyId, awsSecretAccessKey, awsSessionToken, inputWebSocket, languageCode, path, region, sampleRate, transcribeClient };
-    inputWebSocket.on("close", (ev) => {
-        trace(`connection closed for ${path}`);
-    });
+    const languageCode = path.searchParams.get("language") || "en-US";
+    const region = path.searchParams.get("region") || process.env.AWS_DEFAULT_REGION;
+    const sampleRate = path.searchParams.get("sampleRate") || "44100";
+    const settings = { awsAccessKeyId, awsSecretAccessKey, awsSessionToken, inputWebSocket, languageCode, region, sampleRate };
     trace(`connection opened for path ${path}`);
-    const transcribeStreamingJobService = new transcribe_streaming_job_service_1.TranscribeStreamingJobService(options);
-    transcribeStreamingJobService.transcribeStream();
+    try {
+        transcribe_streaming_job_service_1.TranscribeStreamingJobService.transcribeStream(settings);
+        inputWebSocket.on("close", (ev) => {
+            trace(`connection closed for ${path}`);
+        });
+    }
+    catch (err) {
+        error(err);
+        inputWebSocket.close();
+    }
 });
 server.on("upgrade", (request, socket, head) => {
     trace(`received upgrade request for url ${JSON.stringify(request.url)}`);

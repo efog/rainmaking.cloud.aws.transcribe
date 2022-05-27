@@ -1,3 +1,4 @@
+// inspired from https://gist.github.com/flpvsk/047140b31c968001dc563998f7440cc1
 class RecorderProcessor extends AudioWorkletProcessor {
   // 0. Determine the buffer size (this is the same as the 1st argument of ScriptProcessor)
   bufferSize = 4096

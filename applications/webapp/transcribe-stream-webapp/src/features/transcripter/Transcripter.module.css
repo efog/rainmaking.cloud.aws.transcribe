@@ -1,0 +1,30 @@
+.content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+.section {
+    display: flex;
+    flex-direction: column;
+    flex-basis: 50%;
+    flex-grow: 100%;
+    flex-shrink: 25%;
+}
+.inputRow {
+    display: flex;
+    flex-direction: row;
+}
+.inputRow label {
+    width: 20%;
+    max-width: 150px;
+    padding: 10px;
+}
+.inputRow input,select {
+    margin: 10px;
+    min-width: 150px;
+}
+.inputRow button {
+    margin: 10px;
+}

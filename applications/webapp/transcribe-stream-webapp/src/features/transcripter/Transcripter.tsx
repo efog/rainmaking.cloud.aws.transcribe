@@ -1,10 +1,12 @@
-import { CONNECTED, CONNECTING, DISCONNECTED, setSocketState } from "./transcripter-slice";
+import { CONNECTED, CONNECTING, DISCONNECTED, LANGUAGES, REGIONS, setSessionId, setSocketState } from "./transcripter-slice";
 import { Buffer } from "buffer";
 import { Component } from "react";
-import { connect } from "react-redux";
 import { EventStreamMarshaller } from "@aws-sdk/eventstream-marshaller";
 import { Message } from "@aws-sdk/eventstream-marshaller";
 import { Recorder } from "./recorder";
+import { connect } from "react-redux";
+import styles from './Transcripter.module.css';
+import * as uuid from "uuid";
 
 const util_utf8_node = require("@aws-sdk/util-utf8-node");
 const eventStreamMarshaller = new EventStreamMarshaller(util_utf8_node.toUtf8, util_utf8_node.fromUtf8);
@@ -13,6 +15,8 @@ export interface TranscripterProps {
 }
 
 export interface TranscripterInternalProps {
+    sessionId: string,
+    setSessionId: Function,
     setSocketState: Function,
     socketState: any
 }
@@ -36,6 +40,7 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
 
     static mapDispatchToProps(dispatch: any) {
         return {
+            setSessionId: (sessionId: string) => { dispatch(setSessionId(sessionId)) },
             setSocketState: (state: string) => { dispatch(setSocketState(state)) }
         };
     }
@@ -105,10 +110,10 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
     }
 
     async connect() {
-        
+
         const sampleRate = 44100;
         const language = "en-US";
-        const callId  = "to-be-fetched";
+        const callId = "to-be-fetched";
         const region = "ca-central-1";
 
         const audioHandler = (e: { data: Float32Array }) => {
@@ -152,20 +157,70 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
     componentDidMount() {
     }
 
+    resetSessionId() {
+        const sessionid = uuid.v4();
+        console.log(`new session id ${sessionid}`);
+        (this.props as TranscripterInternalProps).setSessionId(sessionid);
+    }
+
     render() {
+        const regionOptions = Object.keys(REGIONS).map((region: string) => {
+            return <option key={REGIONS[region].toString()} value={REGIONS[region].toString()}>{region}</option>
+        });
+        const languageOptions = Object.keys(LANGUAGES).map((language: string) => {
+            return <option key={LANGUAGES[language].toString()} value={LANGUAGES[language].toString()}>{language}</option>
+        });
         return <div>
-            <button onClick={async (ev) => {
-                if ((this.props as TranscripterInternalProps).socketState === DISCONNECTED) {
-                    await this.connect();
-                    // this.record();
-                }
-            }}>Start</button>
-            <button onClick={(ev) => {
-                if ((this.props as TranscripterInternalProps).socketState === CONNECTED) {
-                    this.disconnect();
-                }
-            }}>Stop</button>
-            <span>{(this.props as TranscripterInternalProps).socketState}</span>
+            <div className={styles.content}>
+                <div className={styles.section}>
+                    <h3>What is it?</h3>
+                    <p>
+                        This app captures a user reading a small text out loud and compares the results of the speech to text processing with the 
+                        expected outcome.
+                    </p>
+                    <h3>How to use it?</h3>
+                    <p>
+                        Enter a session id manually or use the reset button, select a language and a region. Upon the selection of a language 
+                        a simple text will be displayed. Press the start button and start reading the text out loud. 
+                    </p>
+                </div>
+                <div className={styles.section}>
+                    <h3>Try it Out!</h3>
+                    <div className={styles.inputRow}>
+                        <label>Session Id</label>
+                        <input type="text" id="sessionId" placeholder="enter session id" onChange={(evt) => {
+                            (this.props as TranscripterInternalProps).setSessionId(evt.target.value);
+                        }} value={(this.props as TranscripterInternalProps).sessionId}></input>
+                        <button onClick={(evt) => { this.resetSessionId(); }}>reset</button>
+                    </div>
+                    <div className={styles.inputRow}>
+                        <label>Language</label>
+                        <select id="language">
+                            {languageOptions}
+                        </select>
+                    </div>
+                    <div className={styles.inputRow}>
+                        <label>Region</label>
+                        <select id="region">
+                            {regionOptions}
+                        </select>
+                    </div>
+                    <div className={styles.inputRow}>
+                        <button onClick={async (ev) => {
+                            if ((this.props as TranscripterInternalProps).socketState === DISCONNECTED) {
+                                await this.connect();
+                                // this.record();
+                            }
+                        }}>Start</button>
+                        <button onClick={(ev) => {
+                            if ((this.props as TranscripterInternalProps).socketState === CONNECTED) {
+                                this.disconnect();
+                            }
+                        }}>Stop</button>
+                        <label>{(this.props as TranscripterInternalProps).socketState}</label>
+                    </div>
+                </div>
+            </div>
         </div>;
     }
 }

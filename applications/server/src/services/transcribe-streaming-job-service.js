@@ -22,15 +22,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -48,80 +39,53 @@ const info = (0, debug_1.default)("INFO::SERVER::SERVICES::transcribe-streaming-
 const warn = (0, debug_1.default)("WARN::SERVER::SERVICES::transcribe-streaming-job-service.ts");
 const error = (0, debug_1.default)("ERROR::SERVER::SERVICES::transcribe-streaming-job-service.ts");
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(utilUtf8Node.toUtf8, utilUtf8Node.fromUtf8);
+/**
+ * Transcribe streaming service helper class.
+ */
 class TranscribeStreamingJobService {
-    // private client: TranscribeStreamingClient;
-    constructor(options) {
-        this.options = options;
-        // this.client = this.options?.transcribeClient || new TranscribeStreamingClient({
-        //     region: this.options.region || "us-east-1"
-        // });
-    }
-    createPresignedURL() {
-        var _a, _b, _c, _d, _e, _f, _g;
-        const endpoint = "transcribestreaming." + ((_a = this.options) === null || _a === void 0 ? void 0 : _a.region) + ".amazonaws.com:8443";
+    /**
+     * Creates a presigned URL for Amazon Transcribe service using settings.
+     * @returns {string} parameterized pre-signed URL.
+     */
+    static createPresignedURL(settings) {
+        const endpoint = "transcribestreaming." + (settings === null || settings === void 0 ? void 0 : settings.region) + ".amazonaws.com:8443";
         // get a preauthenticated URL that we can use to establish our WebSocket
         return v4.createPresignedURL("GET", endpoint, "/stream-transcription-websocket", "transcribe", (0, crypto_1.createHash)("sha256").update("", "utf8").digest("hex"), {
-            key: (_b = this.options) === null || _b === void 0 ? void 0 : _b.awsAccessKeyId,
-            secret: (_c = this.options) === null || _c === void 0 ? void 0 : _c.awsSecretAccessKey,
-            sessionToken: (_d = this.options) === null || _d === void 0 ? void 0 : _d.awsSessionToken,
+            key: settings === null || settings === void 0 ? void 0 : settings.awsAccessKeyId,
+            secret: settings === null || settings === void 0 ? void 0 : settings.awsSecretAccessKey,
+            sessionToken: settings === null || settings === void 0 ? void 0 : settings.awsSessionToken,
             protocol: "wss",
             expires: 15,
-            region: (_e = this.options) === null || _e === void 0 ? void 0 : _e.region,
-            query: "language-code=" + ((_f = this.options) === null || _f === void 0 ? void 0 : _f.languageCode) + "&media-encoding=pcm&sample-rate=" + ((_g = this.options) === null || _g === void 0 ? void 0 : _g.sampleRate)
+            region: settings === null || settings === void 0 ? void 0 : settings.region,
+            query: "partial-results-stability=medium&enable-partial-results-stabilization=true" + "&language-code=" + (settings === null || settings === void 0 ? void 0 : settings.languageCode) + "&media-encoding=pcm&sample-rate=" + (settings === null || settings === void 0 ? void 0 : settings.sampleRate)
         });
-    }
-    getAudioEventMessage(buffer) {
-        return {
-            headers: {
-                ":message-type": {
-                    type: "string",
-                    value: "event"
-                },
-                ":event-type": {
-                    type: "string",
-                    value: "AudioEvent"
-                }
-            },
-            body: buffer
-        };
     }
     /**
      * Transcribes audio stream
      */
-    transcribeStream() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const url = this.createPresignedURL();
-            this.transcribeSocket = new ws_1.WebSocket(url);
-            this.transcribeSocket.binaryType = "arraybuffer";
-            this.transcribeSocket.onopen = () => {
-                this.options.inputWebSocket.onmessage = (audioEvent) => {
-                    var _a;
-                    trace(`audio event type ${JSON.stringify(audioEvent.type)}`);
-                    trace(`audio event data ${JSON.stringify(audioEvent.data.slice(0, 10))}`);
-                    const data = audioEvent.data;
-                    (_a = this.transcribeSocket) === null || _a === void 0 ? void 0 : _a.send(data);
-                };
+    static transcribeStream(settings) {
+        const url = TranscribeStreamingJobService.createPresignedURL(settings);
+        const transcribeSocket = new ws_1.WebSocket(url);
+        transcribeSocket.binaryType = "arraybuffer";
+        transcribeSocket.onopen = () => {
+            settings.inputWebSocket.onmessage = (audioEvent) => {
+                const data = audioEvent.data;
+                transcribeSocket === null || transcribeSocket === void 0 ? void 0 : transcribeSocket.send(data);
             };
-            this.transcribeSocket.onmessage = (ev) => {
-                // eslint-disable-next-line n/no-deprecated-api
-                const data = new Buffer(ev.data);
-                const messageWrapper = eventStreamMarshaller.unmarshall(data);
-                const body = Array.from(messageWrapper.body);
-                const messageBody = JSON.parse(String.fromCharCode.apply(String, body));
-                if (messageWrapper.headers[":message-type"].value === "event") {
-                    trace("received event from Amazon Transcribe");
-                    trace(JSON.stringify(messageBody));
-                    // handleEventStreamMessage(messageBody);
-                }
-                else {
-                    trace("received error from Amazon Transcribe");
-                    trace(JSON.stringify(messageBody));
-                    // transcribeException = true;
-                    // showError(messageBody.Message);
-                    // toggleStartStop();
-                }
-            };
-        });
+        };
+        transcribeSocket.onmessage = (ev) => {
+            const data = Buffer.from(ev.data);
+            const messageWrapper = eventStreamMarshaller.unmarshall(data);
+            const body = Array.from(messageWrapper.body);
+            const messageBody = JSON.parse(String.fromCharCode.apply(String, body));
+            if (messageWrapper.headers[":message-type"].value === "event") {
+                trace(JSON.stringify(messageBody));
+            }
+            else {
+                trace("received error from Amazon Transcribe");
+                trace(JSON.stringify(messageBody));
+            }
+        };
     }
 }
 exports.TranscribeStreamingJobService = TranscribeStreamingJobService;
