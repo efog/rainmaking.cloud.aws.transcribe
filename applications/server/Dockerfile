@@ -1,6 +1,6 @@
 FROM node:16 as builder
 WORKDIR /usr/src/app/build
-COPY src/package*.json .
+COPY src/package*.json ./
 RUN npm install
 COPY src/ .
 RUN npx tsc -p tsconfig.json
