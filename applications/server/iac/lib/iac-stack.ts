@@ -7,6 +7,7 @@ import {
 import { ApplicationProtocol } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
+import { CiStack } from "./ci/ci-stack";
 import { CiStackProps } from "./ci/ci-stack-props";
 import { StreamingServerStack } from "./streaming-server-stack";
 import { StreamingServerStackProps } from "./streaming-server-stack-props";
@@ -79,6 +80,9 @@ export class IacStack extends Stack {
         const ciStackProps = Object.assign(props, {
             applicationName: "streamingSpeechToTextServer",
             codeRepositoryArn: process.env.AWSCDK_CODECOMMIT_REPOSITORYARN || "",
+            codeRepositoryName: process.env.AWSCDK_CODECOMMIT_REPOSITORYNAME || "",
+            repositoryArn: process.env.AWSCDK_ECR_REPOSITORYARN || "",
         }) as CiStackProps;
+        const ciStack = new CiStack(this, "ciStack", ciStackProps);
     }
 }

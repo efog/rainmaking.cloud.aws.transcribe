@@ -17,8 +17,9 @@ export class CiStack extends Stack {
         const { region } = Stack.of(this);
         const repository = ContainerImageRepository.fromRepositoryArn(this, "streamingServerImageRepository", props?.repositoryArn);
         const codeRepository = (props?.codeRepositoryArn
-            && CodeRepository.fromRepositoryArn(this, "codeRepository", props?.codeRepositoryArn || ""))
-            || CodeRepository.fromRepositoryName(this, "codeRepository", props?.codeRepositoryName || "");
+            && CodeRepository.fromRepositoryArn(this, "codeRepository", "arn:aws:codecommit:ca-central-1:032791158701:rainmaking.cloud.aws.transcribe"))
+            || CodeRepository.fromRepositoryName(this, "codeRepository", "rainmaking.cloud.aws.transcribe");
+        // const codeRepository = CodeRepository.fromRepositoryName(this, "codeRepository", props?.codeRepositoryName || "");
         const developSource = Source.codeCommit({
             repository: codeRepository,
             branchOrRef: "develop",
@@ -39,7 +40,7 @@ export class CiStack extends Stack {
             source: developSource,
             projectName: `${props?.applicationName}_develop_build`,
             description: `${props?.applicationName} develop branch build project`,
-            buildSpec: BuildSpec.fromSourceFilename("src/buildspec.yml"),
+            buildSpec: BuildSpec.fromSourceFilename("applications/server/src/buildspec.yml"),
             artifacts: Artifacts.s3({
                 bucket: buildArtifactsBucket,
             }),
