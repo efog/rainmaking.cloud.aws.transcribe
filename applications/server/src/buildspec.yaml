@@ -25,5 +25,5 @@ artifacts:
     files:
         - 'appspec.yml'
         - 'taskdef.json'
-    base-directory: app/streaming-server
+    base-directory: applications/server/src
     name: /builds/$CODEBUILD_BUILD_NUMBER.zip
