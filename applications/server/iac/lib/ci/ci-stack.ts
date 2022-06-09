@@ -40,7 +40,7 @@ export class CiStack extends Stack {
             source: developSource,
             projectName: `${props?.applicationName}_develop_build`,
             description: `${props?.applicationName} develop branch build project`,
-            buildSpec: BuildSpec.fromSourceFilename("applications/server/src/buildspec.yml"),
+            buildSpec: BuildSpec.fromSourceFilename("applications/server/src/buildspec.yaml"),
             artifacts: Artifacts.s3({
                 bucket: buildArtifactsBucket,
             }),
