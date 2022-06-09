@@ -7,9 +7,10 @@ export class IacStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
         new StaticWebsiteStack(this, "staticWebsite", Object.assign(props, {
+            "streamingServerDnsName": process.env.STREAMING_SERVER_ALB_DNSNAME || "",
             "websiteName": "speachtotext-streaming-demo",
             "websiteAcmCertificateArn": process.env.STATICWEBSITE_HTTPS_ACM_CERTIFICATE_ARN || "",
-            "websiteDomain": process.env.STATICWEBSITE_DOMAIN || ""
+            "websiteDomain": process.env.STATICWEBSITE_DOMAIN || "",
         }))
         // The code that defines your stack goes here
 

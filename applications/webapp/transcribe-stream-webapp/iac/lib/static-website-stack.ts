@@ -1,21 +1,22 @@
-import { Environment, Stack, StackProps } from 'aws-cdk-lib';
+import { Duration, Environment, Stack, StackProps } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { AllowedMethods, CachePolicy, Distribution, OriginAccessIdentity, OriginRequestPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
-import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
+import { AllowedMethods, CachePolicy, Distribution, OriginAccessIdentity, OriginProtocolPolicy, OriginRequestPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
+import { HttpOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Bucket, BucketEncryption } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { Construct } from 'constructs';
 import * as path from "path";
 
 export class StaticWebsiteStackProps implements StackProps {
-    websiteName?: string;
-    websiteAcmCertificateArn?: string;
-    websiteDomain?: string;
     description?: string;
     env?: Environment;
+    streamingServerDnsName: string;
     tags?: {
         [key: string]: string;
     };
+    websiteAcmCertificateArn?: string;
+    websiteDomain?: string;
+    websiteName?: string;
 }
 
 export class StaticWebsiteStack extends Stack {
@@ -48,7 +49,7 @@ export class StaticWebsiteStack extends Stack {
                     "originAccessIdentity": staticWebsiteDistributionIdentity
                 }),
                 "viewerProtocolPolicy": ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-                "cachePolicy": CachePolicy.CACHING_OPTIMIZED,
+                "cachePolicy": CachePolicy.CACHING_DISABLED,
                 "smoothStreaming": false,
                 "originRequestPolicy": OriginRequestPolicy.USER_AGENT_REFERER_HEADERS
             },
@@ -56,6 +57,23 @@ export class StaticWebsiteStack extends Stack {
             "domainNames": props?.websiteDomain ? [props?.websiteDomain] : [],
             "errorResponses": []
         });
+        this.staticWebsiteDistribution.addBehavior("api/stt/*", new HttpOrigin(props?.streamingServerDnsName || "", {
+            "connectionAttempts": 3,
+            "connectionTimeout": Duration.seconds(5),
+            "httpPort": 3030,
+            "httpsPort": 3030,
+            "keepaliveTimeout": Duration.seconds(5),
+            "protocolPolicy": OriginProtocolPolicy.HTTP_ONLY,
+            "readTimeout": Duration.seconds(2)
+        }),
+        {
+            "viewerProtocolPolicy": ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+            "cachePolicy": CachePolicy.CACHING_DISABLED,
+            "smoothStreaming": false,
+            "originRequestPolicy": OriginRequestPolicy.USER_AGENT_REFERER_HEADERS,
+            "compress": false
+        });
+
         this.bucketDeployment = new BucketDeployment(this, `${props?.websiteName}_staticwebsite_deployment`, {
             destinationBucket: this.staticWebSiteBucket,
             sources: [Source.asset(path.resolve(process.cwd(), "../build"))]

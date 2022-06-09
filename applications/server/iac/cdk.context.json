@@ -1,0 +1,32 @@
+{
+  "vpc-provider:account=032791158701:filter.isDefault=false:filter.vpc-id=vpc-05db0a060ccf85fa7:region=ca-central-1:returnAsymmetricSubnets=true": {
+    "vpcId": "vpc-05db0a060ccf85fa7",
+    "vpcCidrBlock": "10.0.0.0/16",
+    "availabilityZones": [],
+    "subnetGroups": [
+      {
+        "name": "app-subnet",
+        "type": "Public",
+        "subnets": [
+          {
+            "subnetId": "subnet-08a24e00905945781",
+            "cidr": "10.0.0.0/24",
+            "availabilityZone": "ca-central-1a",
+            "routeTableId": "rtb-091cf43555de01907"
+          },
+          {
+            "subnetId": "subnet-06ffef87b1006fb18",
+            "cidr": "10.0.1.0/24",
+            "availabilityZone": "ca-central-1b",
+            "routeTableId": "rtb-091b6d78d70f56469"
+          }
+        ]
+      }
+    ]
+  },
+  "availability-zones:account=032791158701:region=ca-central-1": [
+    "ca-central-1a",
+    "ca-central-1b",
+    "ca-central-1d"
+  ]
+}

@@ -26,6 +26,8 @@
         "padded-blocks": "off",
         "camelcase": "off",
         "max-classes-per-file": "off",
-        "import/prefer-default-export": "off"
+        "max-len": ["error", 200],
+        "import/prefer-default-export": "off",
+        "import/extensions": "off"
     }
 }

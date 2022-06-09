@@ -3,7 +3,9 @@ import Debug from "debug";
 import { TranscribeStreamingJobService, TranscribeStreamingJobServiceSettings } from "./services/transcribe-streaming-job-service";
 import { URL } from "url";
 import { WebSocket, WebSocketServer } from "ws";
+import express, { Request, Response } from "express";
 
+const app = express();
 const debug = Debug("DEBUG::SERVER::index.ts");
 const trace = Debug("TRACE::SERVER::index.ts");
 const info = Debug("INFO::SERVER::index.ts");
@@ -16,6 +18,11 @@ const server = createServer();
 const wss = new WebSocketServer({
     noServer: true
 });
+
+server.on("request", app.get("/api/stt/healthcheck", (request: Request, response: Response) => {
+    response.statusCode = 200;
+    response.send("ok");
+}));
 
 wss.on("connection", (inputWebSocket: WebSocket, request: any, client: any) => {
     trace(`connection from client ${JSON.stringify(client)}`);
@@ -44,5 +51,6 @@ server.on("upgrade", (request, socket, head): void => {
         wss.emit("connection", ws, request);
     });
 });
+
 trace(`starting listener on port ${process.env.PORT}`);
 server.listen(process.env.PORT || "3131");

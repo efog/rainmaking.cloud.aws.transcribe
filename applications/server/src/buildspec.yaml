@@ -1,0 +1,28 @@
+version: 0.2
+phases:
+    pre_build:
+        commands:
+            - echo Logging into ECR
+            - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+            - BUILD_TAG=$(date +%Y%m%d%H%M)
+            - echo setting container tag $BUILD_TAG
+    build:
+        commands:
+            - echo Build started on $(date +%Y %m %d %H:%M:$S)
+            - echo Building the Docker image...
+            - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+            - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+            - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$BUILD_TAG 
+            - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER 
+    post_build:
+        commands:
+            - echo pushing image on $(date +%Y %m %d %H:%M:$S) 
+            - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+            - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$BUILD_TAG
+            - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER
+artifacts:
+    files:
+        - 'appspec.yml'
+        - 'taskdef.json'
+    base-directory: app/streaming-server
+    name: /builds/$CODEBUILD_BUILD_NUMBER.zip
