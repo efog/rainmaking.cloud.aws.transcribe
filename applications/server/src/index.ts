@@ -21,7 +21,7 @@ const wss = new WebSocketServer({
 
 server.on("request", app.get("/api/stt/healthcheck", (request: Request, response: Response) => {
     response.statusCode = 200;
-    response.send("ok");
+    response.send("Yes, I'm ok");
 }));
 
 wss.on("connection", (inputWebSocket: WebSocket, request: any, client: any) => {
