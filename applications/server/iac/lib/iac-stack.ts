@@ -81,6 +81,7 @@ export class IacStack extends Stack {
             applicationName: "streamingSpeechToTextServer",
             codeRepositoryArn: process.env.AWSCDK_CODECOMMIT_REPOSITORYARN || "",
             codeRepositoryName: process.env.AWSCDK_CODECOMMIT_REPOSITORYNAME || "",
+            pipelineBucketArn: process.env.AWSCDK_CODEPIPELINE_SOURCE_BUCKET_ARN || "",
             repositoryArn: process.env.AWSCDK_ECR_REPOSITORYARN || "",
         }) as CiStackProps;
         const ciStack = new CiStack(this, "ciStack", ciStackProps);

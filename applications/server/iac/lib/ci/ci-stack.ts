@@ -15,11 +15,11 @@ export class CiStack extends Stack {
         super(scope, id, props);
         const accountNumber = Stack.of(this).account;
         const { region } = Stack.of(this);
+        const pipelineBucket = Bucket.fromBucketArn(this, "pipelineBucket", props?.pipelineBucketArn || "");
         const repository = ContainerImageRepository.fromRepositoryArn(this, "streamingServerImageRepository", props?.repositoryArn);
         const codeRepository = (props?.codeRepositoryArn
             && CodeRepository.fromRepositoryArn(this, "codeRepository", "arn:aws:codecommit:ca-central-1:032791158701:rainmaking.cloud.aws.transcribe"))
             || CodeRepository.fromRepositoryName(this, "codeRepository", "rainmaking.cloud.aws.transcribe");
-        // const codeRepository = CodeRepository.fromRepositoryName(this, "codeRepository", props?.codeRepositoryName || "");
         const developSource = Source.codeCommit({
             repository: codeRepository,
             branchOrRef: "develop",
@@ -87,6 +87,7 @@ export class CiStack extends Stack {
                     "*",
                 ],
             }));
+            pipelineBucket.grantReadWrite(streamingServerBuilderDevelopBuildProject.role);
         }
     }
 }
