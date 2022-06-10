@@ -67,10 +67,11 @@ export class StaticWebsiteStack extends Stack {
             "readTimeout": Duration.seconds(2)
         }),
         {
+            "allowedMethods": AllowedMethods.ALLOW_ALL,
             "viewerProtocolPolicy": ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
             "cachePolicy": CachePolicy.CACHING_DISABLED,
             "smoothStreaming": false,
-            "originRequestPolicy": OriginRequestPolicy.USER_AGENT_REFERER_HEADERS,
+            "originRequestPolicy": OriginRequestPolicy.ALL_VIEWER,
             "compress": false
         });
 

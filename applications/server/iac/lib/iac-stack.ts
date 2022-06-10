@@ -38,6 +38,7 @@ export class IacStack extends Stack {
             environment: {
                 DEBUG: "*,-not_this",
                 PORT: "3000",
+                
             },
             privileged: false,
             startTimeout: Duration.seconds(30),

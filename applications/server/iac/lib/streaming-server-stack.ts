@@ -26,7 +26,7 @@ import {
     ApplicationLoadBalancer, ApplicationProtocol, ApplicationProtocolVersion, ApplicationTargetGroup, ApplicationTargetGroupProps, IApplicationLoadBalancer, ListenerAction, TargetType,
 } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import {
-    Effect, PolicyDocument, PolicyStatement, Role, ServicePrincipal,
+    Effect, PolicyDocument, PolicyDocumentProps, PolicyStatement, Role, ServicePrincipal,
 } from "aws-cdk-lib/aws-iam";
 import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
@@ -51,6 +51,7 @@ export class StreamingServerStack extends Stack {
     vpc: IVpc | undefined;
     streamingServerApplicationLoadBalancerProductionListener: ApplicationListener;
     streamingServerApplicationLoadBalancerTestListener: ApplicationListener;
+    transcribeClientRole: Role;
 
     /**
      * Default constructor
@@ -115,6 +116,22 @@ export class StreamingServerStack extends Stack {
                 }),
             },
         });
+
+        this.transcribeClientRole = new Role(this, "transcribeClientRole", {
+            assumedBy: this.executionRole,
+            inlinePolicies: {
+                allowTranscribeClient: new PolicyDocument({
+                    statements: [
+                        new PolicyStatement({
+                            effect: Effect.ALLOW,
+                            actions: ["transcribe:StartStreamTranscription"],
+                            resources: ["*"],
+                        }),
+                    ],
+                }),
+            },
+        });
+
         this.taskRole = new Role(this, "streamingServerTaskRole", {
             assumedBy: new ServicePrincipal("ecs-tasks.amazonaws.com"),
             description: "Role for website task",
@@ -126,7 +143,7 @@ export class StreamingServerStack extends Stack {
         this.streamingServerLogGroup.grantWrite(this.executionRole);
 
         this.streamingServerSecurityGroup = new SecurityGroup(this, "streamingServerSecurityGroup", {
-            description: "streaminf server task security group",
+            description: "streaming server task security group",
             vpc: (this.vpc) as IVpc,
             allowAllOutbound: true,
         });

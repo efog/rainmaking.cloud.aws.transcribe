@@ -125,7 +125,9 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
             audioHandler: audioHandler
         });
 
-        const webSocketUrl = new URL(`ws://${this.webSocketHost}:${this.webSocketPort}`);
+        const webSocketUrl = new URL(`wss://${this.webSocketHost}:${this.webSocketPort}/api/stt/`);
+        console.log(webSocketUrl);
+
         webSocketUrl.searchParams.append("sampleRate", sampleRate.toString());
         webSocketUrl.searchParams.append("language", language);
         webSocketUrl.searchParams.append("callId", callId);

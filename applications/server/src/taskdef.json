@@ -33,6 +33,10 @@
         {
           "name": "PORT",
           "value": "3000"
+        },
+        {
+          "name": "TRANSCRIBESTREAM_CLIENT_ROLEARN",
+          "value": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-transcribeClientRole786D-1G497BMFYLJCS"
         }
       ],
       "resourceRequirements": null,

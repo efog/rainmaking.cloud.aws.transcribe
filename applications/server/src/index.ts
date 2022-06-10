@@ -4,6 +4,7 @@ import { TranscribeStreamingJobService, TranscribeStreamingJobServiceSettings } 
 import { URL } from "url";
 import { WebSocket, WebSocketServer } from "ws";
 import express, { Request, Response } from "express";
+import { IamService } from "./services/iam-service";
 
 const app = express();
 const debug = Debug("DEBUG::SERVER::index.ts");
@@ -24,12 +25,18 @@ server.on("request", app.get("/api/stt/healthcheck", (request: Request, response
     response.send("Yes, I'm ok");
 }));
 
-wss.on("connection", (inputWebSocket: WebSocket, request: any, client: any) => {
+wss.on("connection", async (inputWebSocket: WebSocket, request: any, client: any) => {
     trace(`connection from client ${JSON.stringify(client)}`);
     const path = new URL(request.url, "http://localhost");
-    const awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID;
-    const awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
-    const awsSessionToken = process.env.AWS_SESSION_TOKEN;
+    let awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID;
+    let awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+    let awsSessionToken = process.env.AWS_SESSION_TOKEN;
+    if (process.env.TRANSCRIBESTREAM_CLIENT_ROLEARN) {
+        const assumeRoleResult = await IamService.assumeTranscribeStreamClientRole(process.env.TRANSCRIBESTREAM_CLIENT_ROLEARN);
+        awsAccessKeyId = assumeRoleResult.Credentials?.AccessKeyId;
+        awsSecretAccessKey = assumeRoleResult.Credentials?.SecretAccessKey;
+        awsSessionToken = assumeRoleResult.Credentials?.SessionToken;
+    }
     const languageCode = path.searchParams.get("language") || "en-US";
     const region = path.searchParams.get("region") || process.env.AWS_DEFAULT_REGION;
     const sampleRate = path.searchParams.get("sampleRate") || "44100";
