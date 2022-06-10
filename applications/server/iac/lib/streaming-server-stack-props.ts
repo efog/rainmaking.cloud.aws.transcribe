@@ -12,6 +12,7 @@ export class StreamingServerStackProps implements StackProps {
     tags?: {
         [key: string]: string;
     };
+    repositoryArn: string;
     streamingServerAssignPublicIp: boolean = true;
     streamingServerContainerDefinition: ContainerDefinitionOptions;
     streamingServerExternalDeploymentController: DeploymentController;

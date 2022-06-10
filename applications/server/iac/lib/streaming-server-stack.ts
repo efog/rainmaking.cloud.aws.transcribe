@@ -7,6 +7,7 @@ import {
     ISecurityGroup,
     IVpc, Port, SecurityGroup, SubnetType,
 } from "aws-cdk-lib/aws-ec2";
+import { Repository } from "aws-cdk-lib/aws-ecr";
 import {
     Cluster,
     Compatibility,
@@ -93,6 +94,7 @@ export class StreamingServerStack extends Stack {
             port: this.props?.streamingServerProductionListenerPort || 3030,
             protocol: this.props?.streamingServerProductionListenerProtocol || ApplicationProtocol.HTTP,
         });
+        const repository = Repository.fromRepositoryArn(this, "streamingServerImageRepository", this.props?.repositoryArn || "");
 
         // Setup roles
         this.executionRole = new Role(this, "streamingServerExecutionRole", {
@@ -136,6 +138,7 @@ export class StreamingServerStack extends Stack {
             assumedBy: new ServicePrincipal("ecs-tasks.amazonaws.com"),
             description: "Role for website task",
         });
+        repository.grantPull(this.taskRole);
 
         this.streamingServerLogGroup = new LogGroup(this, "streamingServerLogGroup", {
             retention: RetentionDays.ONE_DAY,

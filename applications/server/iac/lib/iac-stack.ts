@@ -38,7 +38,6 @@ export class IacStack extends Stack {
             environment: {
                 DEBUG: "*,-not_this",
                 PORT: "3000",
-                
             },
             privileged: false,
             startTimeout: Duration.seconds(30),
@@ -59,6 +58,7 @@ export class IacStack extends Stack {
         } as ContainerDefinitionOptions;
 
         const streamingServerProps = Object.assign(props, {}) as StreamingServerStackProps;
+        streamingServerProps.repositoryArn = process.env.AWSCDK_ECR_REPOSITORYARN || "";
         streamingServerProps.streamingServerAssignPublicIp = true;
         streamingServerProps.streamingServerContainerDefinition = containerDefinition;
         streamingServerProps.streamingServerDeploymentType = DeploymentControllerType.CODE_DEPLOY;
