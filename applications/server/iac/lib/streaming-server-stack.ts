@@ -118,6 +118,11 @@ export class StreamingServerStack extends Stack {
                 }),
             },
         });
+        this.taskRole = new Role(this, "streamingServerTaskRole", {
+            assumedBy: new ServicePrincipal("ecs-tasks.amazonaws.com"),
+            description: "Role for website task",
+        });
+        repository.grantPull(this.executionRole);
 
         this.transcribeClientRole = new Role(this, "transcribeClientRole", {
             assumedBy: this.executionRole,
@@ -133,12 +138,6 @@ export class StreamingServerStack extends Stack {
                 }),
             },
         });
-
-        this.taskRole = new Role(this, "streamingServerTaskRole", {
-            assumedBy: new ServicePrincipal("ecs-tasks.amazonaws.com"),
-            description: "Role for website task",
-        });
-        repository.grantPull(this.taskRole);
 
         this.streamingServerLogGroup = new LogGroup(this, "streamingServerLogGroup", {
             retention: RetentionDays.ONE_DAY,
