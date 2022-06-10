@@ -1,6 +1,6 @@
 {
   "ipcMode": null,
-  "executionRoleArn": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-streamingServerExecution-1PYYJE3O4DDYW",
+  "executionRoleArn": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-streamingServerExecution-17EDDA5N2XLBJ",
   "containerDefinitions": [
     {
       "dnsSearchDomains": [],
@@ -9,7 +9,7 @@
         "logDriver": "awslogs",
         "secretOptions": [],
         "options": {
-          "awslogs-group": "StreamingServerStack-streamingServerLogGroupBCB9F7E3-HVqDZ2dxzHMg",
+          "awslogs-group": "StreamingServerStack-streamingServerLogGroupBCB9F7E3-O6ePrdH4ORMu",
           "awslogs-region": "ca-central-1",
           "awslogs-stream-prefix": "streamingServer"
         }
@@ -33,10 +33,6 @@
         {
           "name": "PORT",
           "value": "3000"
-        },
-        {
-          "name": "TRANSCRIBESTREAM_CLIENT_ROLEARN",
-          "value": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-transcribeClientRole786D-1G497BMFYLJCS"
         }
       ],
       "resourceRequirements": null,
@@ -81,13 +77,13 @@
   ],
   "placementConstraints": [],
   "memory": "512",
-  "taskRoleArn": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-streamingServerTaskRole5-1XN1DIJHEI4I6",
+  "taskRoleArn": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-streamingServerTaskRole5-1UKSXA8BVJWB3",
   "compatibilities": [
     "EC2",
     "FARGATE"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:ca-central-1:032791158701:task-definition/StreamingServerStackstreamingServerstreamingServerTaskDefinition7B5054B3:2",
-  "family": "StreamingServerStackstreamingServerstreamingServerTaskDefinition7B5054B3",
+  "taskDefinitionArn": "arn:aws:ecs:ca-central-1:032791158701:task-definition/StreamingServerStackstreamingServerapplicationTaskDefinitionFE38D0C2:2",
+  "family": "StreamingServerStackstreamingServerapplicationTaskDefinitionFE38D0C2",
   "requiresAttributes": [
     {
       "targetId": null,

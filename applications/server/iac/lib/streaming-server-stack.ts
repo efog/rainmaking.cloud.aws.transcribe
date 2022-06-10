@@ -118,14 +118,14 @@ export class StreamingServerStack extends Stack {
                 }),
             },
         });
+        repository.grantPull(this.executionRole);
         this.taskRole = new Role(this, "streamingServerTaskRole", {
             assumedBy: new ServicePrincipal("ecs-tasks.amazonaws.com"),
             description: "Role for website task",
         });
-        repository.grantPull(this.executionRole);
 
         this.transcribeClientRole = new Role(this, "transcribeClientRole", {
-            assumedBy: this.executionRole,
+            assumedBy: this.taskRole,
             inlinePolicies: {
                 allowTranscribeClient: new PolicyDocument({
                     statements: [
@@ -157,7 +157,6 @@ export class StreamingServerStack extends Stack {
         );
 
         // Setup cluster
-        // this.cluster = Cluster.fromClusterArn(this, "streamingServerTargetEcsCluster", this.props?.targetClusterArn || "");
         this.cluster = Cluster.fromClusterAttributes(this, "streamingServerTargetEcsCluster", {
             clusterName: this.props?.targetClusterName || "",
             vpc: this.vpc as IVpc,
@@ -179,7 +178,7 @@ export class StreamingServerStack extends Stack {
         taskDefinitionProps.executionRole = this.executionRole;
         taskDefinitionProps.taskRole = this.taskRole;
 
-        this.streamingServerTaskDefinition = new TaskDefinition(this, "streamingServerTaskDefinition", taskDefinitionProps);
+        this.streamingServerTaskDefinition = new TaskDefinition(this, "applicationTaskDefinition", taskDefinitionProps);
         this.streamingServerTaskDefinition.addContainer("container0", { ...this.props?.streamingServerContainerDefinition } as ContainerDefinitionOptions);
 
         this.streamingServerDeploymentController = this.props?.streamingServerDeploymentType === DeploymentControllerType.ECS ? {

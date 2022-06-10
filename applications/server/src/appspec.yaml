@@ -3,7 +3,7 @@ Resources:
   - TargetService:
       Type: AWS::ECS::Service
       Properties:
-        TaskDefinition: "arn:aws:ecs:ca-central-1:032791158701:task-definition/StreamingServerStackstreamingServerstreamingServerTaskDefinition7B5054B3:6"
+        TaskDefinition: "arn:aws:ecs:ca-central-1:032791158701:task-definition/StreamingServerStackstreamingServerapplicationTaskDefinitionFE38D0C2:2"
         LoadBalancerInfo:
             ContainerName: streamingServer
             ContainerPort: 3000
