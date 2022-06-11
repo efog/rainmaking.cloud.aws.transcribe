@@ -38,7 +38,7 @@ export class IacStack extends Stack {
             environment: {
                 DEBUG: "*,-not_this",
                 PORT: "3000",
-                TRANSCRIBESTREAM_CLIENT_ROLEARN: "arn:aws:iam::032791158701:role/StreamingServerStackstrea-transcribeClientRole786D-1Q14KX5P1TLCD",
+                // TRANSCRIBESTREAM_CLIENT_ROLEARN: "arn:aws:iam::032791158701:role/StreamingServerStackstrea-transcribeClientRole786D-1Q14KX5P1TLCD",
             },
             privileged: false,
             startTimeout: Duration.seconds(30),

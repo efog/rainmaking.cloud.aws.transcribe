@@ -131,7 +131,7 @@ export class StreamingServerStack extends Stack {
                     statements: [
                         new PolicyStatement({
                             effect: Effect.ALLOW,
-                            actions: ["transcribe:StartStreamTranscription"],
+                            actions: ["transcribe:StartStreamTranscription", "transcribe:StartStreamTranscriptionWebSocket"],
                             resources: ["*"],
                         }),
                     ],
