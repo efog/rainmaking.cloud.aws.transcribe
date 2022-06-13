@@ -1,23 +1,25 @@
-import { CONNECTED, CONNECTING, DISCONNECTED, LANGUAGES, REGIONS, setLanguage, setRegion, setSessionId, setSocketState, setSpeakerName } from "./transcripter-slice";
-import { Buffer } from "buffer";
+import { CONNECTED, CONNECTING, DISCONNECTED, LANGUAGES, REGIONS, setApiKey, setLanguage, setRegion, setSessionId, setSocketState, setSpeakerName } from "./transcripter-slice";
 import { Component } from "react";
-import { EventStreamMarshaller } from "@aws-sdk/eventstream-marshaller";
-import { Message } from "@aws-sdk/eventstream-marshaller";
-import { Recorder } from "./recorder";
 import { connect } from "react-redux";
+import { AudioRecorderWebSocketClient, connectRecorderSocket } from "./audio-recorder-websocket-client";
 import styles from './Transcripter.module.css';
 import * as uuid from "uuid";
 
-const util_utf8_node = require("@aws-sdk/util-utf8-node");
-const eventStreamMarshaller = new EventStreamMarshaller(util_utf8_node.toUtf8, util_utf8_node.fromUtf8);
-
+/**
+ * Transcripter properties
+ */
 export interface TranscripterProps {
 }
 
+/**
+ * Transcripter internal properties
+ */
 export interface TranscripterInternalProps {
+    apiKey: string,
     language: string,
     region: string,
     sessionId: string,
+    setApiKey: Function,
     setLanguage: Function,
     setRegion: Function,
     setSessionId: Function,
@@ -27,13 +29,19 @@ export interface TranscripterInternalProps {
     speakerName: string,
 }
 
+/**
+ * Transcripter component
+ */
 class Transcripter extends Component<TranscripterProps | TranscripterInternalProps> {
 
     private webSocketHost: string;
     private webSocketPort: string;
-    private webSocket: WebSocket | undefined;
-    private audioRecorder: Recorder | undefined;
+    private client: AudioRecorderWebSocketClient | undefined
 
+    /**
+     * Default constructor
+     * @param props {TranscripterProps} component properties
+     */
     constructor(props: TranscripterProps) {
         super(props);
         this.webSocketHost = process.env.REACT_APP_WEBSOCKET_HOST || "localhost";
@@ -46,123 +54,40 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
 
     static mapDispatchToProps(dispatch: any) {
         return {
+            setApiKey: (apiKey: string) => { dispatch(setApiKey(apiKey)) },
             setLanguage: (language: string) => { dispatch(setLanguage(language)) },
             setRegion: (region: string) => { dispatch(setRegion(region)) },
             setSessionId: (sessionId: string) => { dispatch(setSessionId(sessionId)) },
             setSocketState: (state: string) => { dispatch(setSocketState(state)) },
-            setSpeakerName: (speakerName: string) => { dispatch(setSpeakerName(speakerName))},
-        };
-    }
-
-    pcmEncode(input: Float32Array) {
-        let offset = 0;
-        const buffer = new ArrayBuffer(input.length * 2);
-        const view = new DataView(buffer);
-        for (let i = 0; i < input.length; i++, offset += 2) {
-            const s = Math.max(-1, Math.min(1, input[i]));
-            view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
-        }
-        return buffer;
-    }
-
-    downsampleBuffer(buffer: Float32Array, inputSampleRate = 44100, outputSampleRate = 16000) {
-
-        if (outputSampleRate === inputSampleRate) {
-            return buffer;
-        }
-        const sampleRateRatio = inputSampleRate / outputSampleRate;
-        const newLength = Math.round(buffer.length / sampleRateRatio);
-        const result = new Float32Array(newLength);
-        let offsetResult = 0;
-        let offsetBuffer = 0;
-
-        while (offsetResult < result.length) {
-            const nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
-            let accum = 0,
-                count = 0;
-            for (let i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
-                accum += buffer[i];
-                count++;
-            }
-            result[offsetResult] = accum / count;
-            offsetResult++;
-            offsetBuffer = nextOffsetBuffer;
-        }
-        return result;
-    }
-
-    convertAudioToBinaryMessage(audioChunk: Float32Array, outputSampleRate: number = 44100): Uint8Array {
-        // downsample and convert the raw audio bytes to PCM
-        let downsampledBuffer = this.downsampleBuffer(audioChunk, 44100, outputSampleRate);
-        let pcmEncodedBuffer = this.pcmEncode(downsampledBuffer);
-        // add the right JSON headers and structure to the message
-        let audioEventMessage = this.getAudioEventMessage(Buffer.from(pcmEncodedBuffer));
-        //convert the JSON object + headers into a binary event stream message
-        let binary = eventStreamMarshaller.marshall(audioEventMessage);
-        return binary;
-    }
-
-    getAudioEventMessage(buffer: Buffer): Message {
-        return {
-            headers: {
-                ':message-type': {
-                    type: 'string',
-                    value: 'event'
-                },
-                ':event-type': {
-                    type: 'string',
-                    value: 'AudioEvent'
-                }
-            },
-            body: buffer
+            setSpeakerName: (speakerName: string) => { dispatch(setSpeakerName(speakerName)) },
         };
     }
 
     async connect() {
 
-        const sampleRate = 44100;
+        (this.props as TranscripterInternalProps).setSocketState(CONNECTING);
         const language = (this.props as TranscripterInternalProps).language;
         const callId = (this.props as TranscripterInternalProps).sessionId;
         const region = (this.props as TranscripterInternalProps).region;
+        const username = (this.props as TranscripterInternalProps).speakerName;
 
-        const audioHandler = (e: { data: Float32Array }) => {
-            const audioEventMessage = this.convertAudioToBinaryMessage(e.data, sampleRate);
-            this.webSocket?.send(audioEventMessage);
-        };
-
-        this.audioRecorder = await Recorder.start({
-            audioHandler: audioHandler
+        this.client = await connectRecorderSocket(this.webSocketHost, this.webSocketPort, language, callId, username, region);
+        this.client.onclose((ev: CloseEvent) => {
+            console.log(`connection closed ${JSON.stringify(ev)}`);
+            (this.props as TranscripterInternalProps).setSocketState(DISCONNECTED);
+        });
+        this.client.onopen((ev: Event) => {
+            console.log(`connection opened ${JSON.stringify(ev)}`);
+            (this.props as TranscripterInternalProps).setSocketState(CONNECTED);
+        });
+        this.client.onmessage((ev: MessageEvent) => {
+            console.log(`message received ${JSON.stringify(ev)}`);
         });
 
-        const webSocketUrl = new URL(`ws://${this.webSocketHost}:${this.webSocketPort}/api/stt/`);
-        console.log(webSocketUrl);
-
-        webSocketUrl.searchParams.append("sampleRate", sampleRate.toString());
-        webSocketUrl.searchParams.append("language", language);
-        webSocketUrl.searchParams.append("callId", callId);
-        webSocketUrl.searchParams.append("region", region);
-        console.log(JSON.stringify(webSocketUrl));
-        this.webSocket = new WebSocket(webSocketUrl);
-        this.webSocket.binaryType = "arraybuffer";
-        (this.props as TranscripterInternalProps).setSocketState(CONNECTING);
-        if (this.webSocket) {
-            this.webSocket.onclose = (ev: CloseEvent) => {
-                console.log(`connection closed ${JSON.stringify(ev)}`);
-                this.audioRecorder?.stop();
-                (this.props as TranscripterInternalProps).setSocketState(DISCONNECTED);
-            }
-            this.webSocket.onopen = (ev: Event) => {
-                console.log(`connection opened ${JSON.stringify(ev)}`);
-                (this.props as TranscripterInternalProps).setSocketState(CONNECTED);
-            }
-            this.webSocket.onmessage = (ev: MessageEvent) => {
-                console.log(`message received ${JSON.stringify(ev)}`);
-            }
-        }
     }
 
     disconnect() {
-        this.webSocket?.close();
+        this.client?.close();
     }
 
     componentDidMount() {
@@ -170,7 +95,6 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
 
     resetSessionId() {
         const sessionid = uuid.v4();
-        console.log(`new session id ${sessionid}`);
         (this.props as TranscripterInternalProps).setSessionId(sessionid);
     }
 
@@ -197,9 +121,18 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
                 </div>
                 <div className={styles.section}>
                     <h3>Try it Out!</h3>
+                    {/* <div className={styles.inputRow}>
+                        <label>API Key</label>
+                        <input type="text" id="apiKey" placeholder="API key"
+                            onChange={(evt) => {
+                                (this.props as TranscripterInternalProps).setApiKey(evt.target.value);
+                            }}
+                            value={(this.props as TranscripterInternalProps).apiKey}>
+                        </input>
+                    </div> */}
                     <div className={styles.inputRow}>
-                        <label>Session Id</label>
-                        <input disabled={true} type="text" id="sessionId" placeholder="enter session id"
+                        <label>Call Id</label>
+                        <input type="text" id="sessionId" placeholder="session id"
                             onChange={(evt) => {
                                 (this.props as TranscripterInternalProps).setSessionId(evt.target.value);
                             }}
@@ -209,9 +142,9 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
                     </div>
                     <div className={styles.inputRow}>
                         <label>Speaker Name</label>
-                        <input 
+                        <input
                             disabled={(this.props as TranscripterInternalProps).socketState === CONNECTED}
-                            type="text" id="speakerName" placeholder="enter speaker name"
+                            type="text" id="speakerName" placeholder="speaker name"
                             onChange={(evt) => {
                                 (this.props as TranscripterInternalProps).setSpeakerName(evt.target.value);
                             }}
@@ -237,21 +170,21 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
                             value={(this.props as TranscripterInternalProps).region}
                             onChange={(evt) => {
                                 (this.props as TranscripterInternalProps).setRegion(evt.target.value);
-                            }} 
+                            }}
                             id="region">
                             {regionOptions}
                         </select>
                     </div>
                     <div className={styles.inputRow}>
-                        <button 
-                            disabled={(this.props as TranscripterInternalProps).speakerName === "" || (this.props as TranscripterInternalProps).socketState === CONNECTED} 
+                        <button
+                            disabled={(this.props as TranscripterInternalProps).speakerName === "" || (this.props as TranscripterInternalProps).socketState === CONNECTED}
                             onClick={async (ev) => {
                                 if ((this.props as TranscripterInternalProps).socketState === DISCONNECTED) {
                                     await this.connect();
                                     // this.record();
                                 }
                             }}>Start</button>
-                        <button 
+                        <button
                             disabled={(this.props as TranscripterInternalProps).socketState === DISCONNECTED}
                             onClick={(ev) => {
                                 if ((this.props as TranscripterInternalProps).socketState === CONNECTED) {

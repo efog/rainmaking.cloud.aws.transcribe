@@ -1,0 +1,278 @@
+{
+    "Transcript": {
+        "Results": [
+            {
+                "Alternatives": [
+                    {
+                        "Items": [
+                            {
+                                "Confidence": 0.7646,
+                                "Content": "Mhm",
+                                "EndTime": 0.6775,
+                                "Stable": true,
+                                "StartTime": 0.27,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Content": ",",
+                                "EndTime": 0.6775,
+                                "Stable": true,
+                                "StartTime": 0.6775,
+                                "Type": "punctuation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "this",
+                                "EndTime": 1.4525,
+                                "Stable": true,
+                                "StartTime": 0.9775,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 0.9218,
+                                "Content": "app",
+                                "EndTime": 1.9025,
+                                "Stable": true,
+                                "StartTime": 1.4525,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "captures",
+                                "EndTime": 2.7375,
+                                "Stable": true,
+                                "StartTime": 1.9025,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "or",
+                                "EndTime": 2.8375,
+                                "Stable": true,
+                                "StartTime": 2.7375,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "user",
+                                "EndTime": 3.2775,
+                                "Stable": true,
+                                "StartTime": 2.8375,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "reading",
+                                "EndTime": 3.6875,
+                                "Stable": true,
+                                "StartTime": 3.2775,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "and",
+                                "EndTime": 3.8175,
+                                "Stable": true,
+                                "StartTime": 3.6875,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "small",
+                                "EndTime": 4.2575,
+                                "Stable": true,
+                                "StartTime": 3.8175,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "text",
+                                "EndTime": 4.7575,
+                                "Stable": true,
+                                "StartTime": 4.2575,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "out",
+                                "EndTime": 5.0725,
+                                "Stable": true,
+                                "StartTime": 4.7575,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "loud",
+                                "EndTime": 5.6175,
+                                "Stable": true,
+                                "StartTime": 5.0725,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "and",
+                                "EndTime": 5.9475,
+                                "Stable": true,
+                                "StartTime": 5.7575,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "compares",
+                                "EndTime": 6.6975,
+                                "Stable": true,
+                                "StartTime": 5.9475,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "the",
+                                "EndTime": 6.8475,
+                                "Stable": true,
+                                "StartTime": 6.6975,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "results",
+                                "EndTime": 7.6875,
+                                "Stable": true,
+                                "StartTime": 6.8475,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "of",
+                                "EndTime": 7.8325,
+                                "Stable": true,
+                                "StartTime": 7.6875,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "the",
+                                "EndTime": 7.9675,
+                                "Stable": true,
+                                "StartTime": 7.8325,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "speech",
+                                "EndTime": 8.4775,
+                                "Stable": true,
+                                "StartTime": 7.9675,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "to",
+                                "EndTime": 8.6775,
+                                "Stable": true,
+                                "StartTime": 8.4775,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "text",
+                                "EndTime": 9.0775,
+                                "Stable": true,
+                                "StartTime": 8.6775,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "processing",
+                                "EndTime": 10.0425,
+                                "Stable": true,
+                                "StartTime": 9.0775,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Content": ",",
+                                "EndTime": 10.0425,
+                                "Stable": true,
+                                "StartTime": 10.0425,
+                                "Type": "punctuation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "with",
+                                "EndTime": 10.5325,
+                                "Stable": true,
+                                "StartTime": 10.0425,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "the",
+                                "EndTime": 10.7175,
+                                "Stable": true,
+                                "StartTime": 10.5325,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "expected",
+                                "EndTime": 11.4975,
+                                "Stable": true,
+                                "StartTime": 10.7175,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "dot",
+                                "EndTime": 11.8175,
+                                "Stable": true,
+                                "StartTime": 11.4975,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            },
+                            {
+                                "Confidence": 1,
+                                "Content": "com",
+                                "EndTime": 12.195,
+                                "Stable": true,
+                                "StartTime": 11.8175,
+                                "Type": "pronunciation",
+                                "VocabularyFilterMatch": false
+                            }
+                        ],
+                        "Transcript": "Mhm, this app captures or user reading and small text out loud and compares the results of the speech to text processing, with the expected dot com"
+                    }
+                ],
+                "EndTime": 12.195,
+                "IsPartial": false,
+                "ResultId": "4ea939f4-c230-4917-9512-a68991a723f5",
+                "StartTime": 0.27
+            }
+        ]
+    }
+}

@@ -14,6 +14,7 @@ export const CONNECTED: string = "CONNECTED";
 export const CONNECTING: string = "CONNECTING";
 
 export interface TranscripterState {
+    apiKey: string;
     language: string;
     region: any,
     sessionId?: string;
@@ -22,6 +23,7 @@ export interface TranscripterState {
 }
 
 const initialState: TranscripterState = {
+    apiKey: "",
     language: LANGUAGES["US English"],
     region: REGIONS[ "Canada Central 1"],
     sessionId: uuid.v4(),
@@ -33,6 +35,9 @@ export const transcripterSlice = createSlice({
     name: "transcripter",
     initialState,
     reducers: {
+        setApiKey: (state: TranscripterState, action: PayloadAction<string>) => {
+            state.apiKey = action.payload;
+        },
         setLanguage: (state: TranscripterState, action: PayloadAction<string>) => {
             state.language = action.payload;
         },
@@ -50,5 +55,5 @@ export const transcripterSlice = createSlice({
         }
     }
 });
-export const { setLanguage, setRegion, setSessionId, setSocketState, setSpeakerName } = transcripterSlice.actions;
+export const { setApiKey, setLanguage, setRegion, setSessionId, setSocketState, setSpeakerName } = transcripterSlice.actions;
 export default transcripterSlice.reducer;
