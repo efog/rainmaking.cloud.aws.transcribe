@@ -37,9 +37,9 @@ wss.on("connection", async (inputWebSocket: WebSocket, request: any, client: any
         awsSecretAccessKey = assumeRoleResult.Credentials?.SecretAccessKey;
         awsSessionToken = assumeRoleResult.Credentials?.SessionToken;
     }
-    const languageCode = (path.searchParams.get("language") && path.searchParams.get("language") !== "undefined") || "en-US";
-    const region = (path.searchParams.get("region") && path.searchParams.get("region") !== "undefined") || process.env.AWS_DEFAULT_REGION;
-    const sampleRate = (path.searchParams.get("sampleRate") && path.searchParams.get("sampleRate") !== "undefined") || "44100";
+    const languageCode = path.searchParams.get("language") || "en-US";
+    const region = path.searchParams.get("region") || process.env.AWS_DEFAULT_REGION;
+    const sampleRate = path.searchParams.get("sampleRate") || "44100";
     const speakerName = (path.searchParams.get("speakerName") && path.searchParams.get("speakerName") !== "undefined") || null;
     const settings = { awsAccessKeyId, awsSecretAccessKey, awsSessionToken, inputWebSocket, languageCode, region, sampleRate } as TranscribeStreamingJobServiceSettings;
     trace(`connection opened for path ${path}`);
