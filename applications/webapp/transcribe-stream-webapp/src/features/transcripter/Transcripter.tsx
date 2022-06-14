@@ -1,9 +1,14 @@
+import { Buffer } from "buffer";
 import { CONNECTED, CONNECTING, DISCONNECTED, LANGUAGES, REGIONS, setApiKey, setLanguage, setRegion, setSessionId, setSocketState, setSpeakerName } from "./transcripter-slice";
 import { Component } from "react";
 import { connect } from "react-redux";
 import { AudioRecorderWebSocketClient, connectRecorderSocket } from "./audio-recorder-websocket-client";
+import * as marshaller from "@aws-sdk/eventstream-marshaller";
+import * as utilUtf8Node from "@aws-sdk/util-utf8-node";
 import styles from './Transcripter.module.css';
 import * as uuid from "uuid";
+
+const eventStreamMarshaller = new marshaller.EventStreamMarshaller(utilUtf8Node.toUtf8, utilUtf8Node.fromUtf8);
 
 /**
  * Transcripter properties
@@ -80,8 +85,17 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
             console.log(`connection opened ${JSON.stringify(ev)}`);
             (this.props as TranscripterInternalProps).setSocketState(CONNECTED);
         });
-        this.client.onmessage((ev: MessageEvent) => {
-            console.log(`message received ${JSON.stringify(ev)}`);
+        this.client.onmessage((ev: MessageEvent | undefined) => {
+            if (ev) {
+                const data = Buffer.from(ev.data as any);
+                const messageWrapper = eventStreamMarshaller.unmarshall(data);
+                const body = Array.from(messageWrapper.body);
+                const messageBody = JSON.parse(String.fromCharCode.apply(String, body));
+                console.log(`message received ${JSON.stringify(messageBody)}`);
+            }
+            else {
+                console.log("received event from server but payload is undefined.");
+            }
         });
 
     }

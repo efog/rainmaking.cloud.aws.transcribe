@@ -25,6 +25,7 @@
     "eslint-plugin-standard": "^5.0.0"
   },
   "dependencies": {
+    "@aws-sdk/client-sqs": "^3.109.0",
     "@aws-sdk/client-transcribe": "^3.87.0",
     "@aws-sdk/client-transcribe-streaming": "^3.87.0",
     "@aws-sdk/eventstream-marshaller": "^3.78.0",

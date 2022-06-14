@@ -1,6 +1,7 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable max-len */
 import {
+    CfnOutput,
     Duration, Stack,
 } from "aws-cdk-lib";
 import {
@@ -27,9 +28,10 @@ import {
     ApplicationLoadBalancer, ApplicationProtocol, ApplicationProtocolVersion, ApplicationTargetGroup, ApplicationTargetGroupProps, IApplicationLoadBalancer, ListenerAction, TargetType,
 } from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import {
-    Effect, PolicyDocument, PolicyDocumentProps, PolicyStatement, Role, ServicePrincipal,
+    Effect, PolicyDocument, PolicyStatement, Role, ServicePrincipal,
 } from "aws-cdk-lib/aws-iam";
 import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
+import { Queue } from "aws-cdk-lib/aws-sqs";
 import { Construct } from "constructs";
 import { StreamingServerStackProps } from "./streaming-server-stack-props";
 
@@ -261,5 +263,16 @@ export class StreamingServerStack extends Stack {
                 targetGroups: [new ApplicationTargetGroup(this, "streamingServerTargetGroupGreen", streamingServerTestTargetGroup)],
             });
         }
+
+        // setup output queue
+        const targetQueue = new Queue(this, "streamingServerOutputQueue", {
+        });
+        targetQueue.grantSendMessages(this.taskRole);
+        const queueUrlOutput = new CfnOutput(this, "outputQueueUrl", {
+            value: targetQueue.queueUrl,
+        });
+        const queueArnOutput = new CfnOutput(this, "outputQueueArn", {
+            value: targetQueue.queueArn,
+        });
     }
 }

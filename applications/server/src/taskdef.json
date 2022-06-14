@@ -37,6 +37,10 @@
         {
           "name": "TRANSCRIBESTREAM_CLIENT_ROLEARN",
           "value": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-transcribeClientRole786D-1Q14KX5P1TLCD"
+        },
+        {
+          "name": "SQS_OUTPUT_QUEUE_URL",
+          "value": "https://sqs.ca-central-1.amazonaws.com/032791158701/StreamingServerStackstreamingServ-streamingServerOutputQueueE0F57B5-G6VDXhepQ3gF"
         }
       ],
       "resourceRequirements": null,

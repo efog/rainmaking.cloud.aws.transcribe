@@ -1,10 +1,11 @@
 import { createServer } from "http";
 import Debug from "debug";
-import { TranscribeStreamingJobService, TranscribeStreamingJobServiceSettings } from "./services/transcribe-streaming-job-service";
+import { ErrorMessageEvent, TranscribeMessageEvent, TranscribeStreamingJobService, TranscribeStreamingJobServiceSettings } from "./services/transcribe-streaming-job-service";
 import { URL } from "url";
 import { WebSocket, WebSocketServer } from "ws";
 import express, { Request, Response } from "express";
 import { IamService } from "./services/iam-service";
+import { SQSService } from "./services/sqs-service";
 
 const app = express();
 const debug = Debug("DEBUG::SERVER::index.ts");
@@ -26,6 +27,7 @@ server.on("request", app.get("/api/stt/healthcheck", (request: Request, response
 }));
 
 wss.on("connection", async (inputWebSocket: WebSocket, request: any, client: any) => {
+
     trace(`connection from client ${JSON.stringify(client)}`);
     const path = new URL(request.url, "http://localhost");
     let awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID;
@@ -40,13 +42,27 @@ wss.on("connection", async (inputWebSocket: WebSocket, request: any, client: any
     const languageCode = path.searchParams.get("language") || "en-US";
     const region = path.searchParams.get("region") || process.env.AWS_DEFAULT_REGION;
     const sampleRate = path.searchParams.get("sampleRate") || "44100";
-    const speakerName = (path.searchParams.get("speakerName") && path.searchParams.get("speakerName") !== "undefined") || null;
-    const settings = { awsAccessKeyId, awsSecretAccessKey, awsSessionToken, inputWebSocket, languageCode, region, sampleRate } as TranscribeStreamingJobServiceSettings;
+    const speakerName = path.searchParams.get("speakerName") || null;
+    const callId = path.searchParams.get("callId") || null;
+    const settings = { awsAccessKeyId, awsSecretAccessKey, awsSessionToken, inputWebSocket, languageCode, region, sampleRate, speakerName } as TranscribeStreamingJobServiceSettings;
+
     trace(`connection opened for path ${path}`);
     try {
-        TranscribeStreamingJobService.transcribeStream(settings);
+        const service = TranscribeStreamingJobService.transcribeStream(settings);
+        const sqsService = new SQSService();
+        const queueUrl = process.env.SQS_OUTPUT_QUEUE_URL || "";
         inputWebSocket.on("close", (ev: Event) => {
             trace(`connection closed for ${path}`);
+        });
+        service.onerror((err: ErrorMessageEvent) => {
+            error(JSON.stringify(err));
+        });
+        service.onmessage(async (evt: TranscribeMessageEvent) => {
+            trace(`${JSON.stringify(evt)}`);
+            if (!evt.Transcript.IsPartial) {
+                const payload = Object.assign(evt.Transcript, speakerName, callId);
+                await sqsService.sendMessage(payload, queueUrl);
+            }
         });
     } catch (err: any) {
         error(err);
