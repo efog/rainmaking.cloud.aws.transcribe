@@ -1,4 +1,5 @@
 import { createServer } from "http";
+import { DateTime } from "luxon";
 import Debug from "debug";
 import { ErrorMessageEvent, TranscribeMessageEvent, TranscribeStreamingJobService, TranscribeStreamingJobServiceSettings } from "./services/transcribe-streaming-job-service";
 import { URL } from "url";
@@ -59,8 +60,9 @@ wss.on("connection", async (inputWebSocket: WebSocket, request: any, client: any
         });
         service.onmessage(async (evt: TranscribeMessageEvent) => {
             trace(`${JSON.stringify(evt)}`);
+            const timestamp = DateTime.utc().toISO();
             if (evt.Transcript.Results.length > 0 && !evt.Transcript.Results[0].IsPartial) {
-                const payload = Object.assign(evt.Transcript, { speakerName, callId });
+                const payload = Object.assign(evt.Transcript, { speakerName, callId, timestamp });
                 await sqsService.sendMessage(payload, queueUrl);
             }
         });

@@ -6,8 +6,9 @@ export class CiStackProps implements StackProps {
     codeRepositoryName?: string;
     description?: string;
     env?: Environment;
+    functionsImageRepositoryArn: string;
     pipelineBucketArn: string;
-    repositoryArn: string;
+    streamingServerImageRepositoryArn: string;
     tags?: {
         [key: string]: string;
     };

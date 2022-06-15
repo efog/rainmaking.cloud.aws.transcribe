@@ -121,21 +121,24 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
         });
         return <div>
             <div className={styles.content}>
-                <div className={styles.section}>
-                    <h3>What is it?</h3>
-                    <p>
-                        This app captures a user reading a small text out loud and compares the results of the speech to text processing with the
-                        expected outcome.
-                    </p>
-                    <h3>How to use it?</h3>
-                    <p>
-                        Enter a session id manually or use the reset button, select a language and a region. Upon the selection of a language
-                        a simple text will be displayed. Press the start button and start reading the text out loud.
-                    </p>
+                <div className={styles.sectionsmall}>
+                    <div style={{ padding: "10px" }}>
+                        <h3>What is it?</h3>
+                        <p>
+                            This app captures a user reading a small text out loud and compares the results of the speech to text processing with the
+                            expected outcome.
+                        </p>
+                        <h3>How to use it?</h3>
+                        <p>
+                            Enter a session id manually or use the reset button, select a language and a region. Upon the selection of a language
+                            a simple text will be displayed. Press the start button and start reading the text out loud.
+                        </p>
+                    </div>
                 </div>
-                <div className={styles.section}>
-                    <h3>Try it Out!</h3>
-                    {/* <div className={styles.inputRow}>
+                <div className={styles.sectionmedium}>
+                    <div style={{ padding: "10px" }}>
+                        <h3>Try it Out!</h3>
+                        {/* <div className={styles.inputRow}>
                         <label>API Key</label>
                         <input type="text" id="apiKey" placeholder="API key"
                             onChange={(evt) => {
@@ -144,68 +147,69 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
                             value={(this.props as TranscripterInternalProps).apiKey}>
                         </input>
                     </div> */}
-                    <div className={styles.inputRow}>
-                        <label>Call Id</label>
-                        <input type="text" id="sessionId" placeholder="session id"
-                            onChange={(evt) => {
-                                (this.props as TranscripterInternalProps).setSessionId(evt.target.value);
-                            }}
-                            value={(this.props as TranscripterInternalProps).sessionId}>
-                        </input>
-                        <button disabled={(this.props as TranscripterInternalProps).socketState === CONNECTED} onClick={(evt) => { this.resetSessionId(); }}>reset</button>
-                    </div>
-                    <div className={styles.inputRow}>
-                        <label>Speaker Name</label>
-                        <input
-                            disabled={(this.props as TranscripterInternalProps).socketState === CONNECTED}
-                            type="text" id="speakerName" placeholder="speaker name"
-                            onChange={(evt) => {
-                                (this.props as TranscripterInternalProps).setSpeakerName(evt.target.value);
-                            }}
-                            value={(this.props as TranscripterInternalProps).speakerName}>
-                        </input>
-                    </div>
-                    <div className={styles.inputRow}>
-                        <label>Language</label>
-                        <select
-                            disabled={(this.props as TranscripterInternalProps).socketState === CONNECTED}
-                            value={(this.props as TranscripterInternalProps).language}
-                            onChange={(evt) => {
-                                (this.props as TranscripterInternalProps).setLanguage(evt.target.value);
-                            }}
-                            id="language">
-                            {languageOptions}
-                        </select>
-                    </div>
-                    <div className={styles.inputRow}>
-                        <label>Region</label>
-                        <select
-                            disabled={(this.props as TranscripterInternalProps).socketState === CONNECTED}
-                            value={(this.props as TranscripterInternalProps).region}
-                            onChange={(evt) => {
-                                (this.props as TranscripterInternalProps).setRegion(evt.target.value);
-                            }}
-                            id="region">
-                            {regionOptions}
-                        </select>
-                    </div>
-                    <div className={styles.inputRow}>
-                        <button
-                            disabled={(this.props as TranscripterInternalProps).speakerName === "" || (this.props as TranscripterInternalProps).socketState === CONNECTED}
-                            onClick={async (ev) => {
-                                if ((this.props as TranscripterInternalProps).socketState === DISCONNECTED) {
-                                    await this.connect();
-                                    // this.record();
-                                }
-                            }}>Start</button>
-                        <button
-                            disabled={(this.props as TranscripterInternalProps).socketState === DISCONNECTED}
-                            onClick={(ev) => {
-                                if ((this.props as TranscripterInternalProps).socketState === CONNECTED) {
-                                    this.disconnect();
-                                }
-                            }}>Stop</button>
-                        <label>{(this.props as TranscripterInternalProps).socketState}</label>
+                        <div className={styles.inputRow}>
+                            <label>Call Id</label>
+                            <input type="text" id="sessionId" placeholder="session id"
+                                onChange={(evt) => {
+                                    (this.props as TranscripterInternalProps).setSessionId(evt.target.value);
+                                }}
+                                value={(this.props as TranscripterInternalProps).sessionId}>
+                            </input>
+                            <button disabled={(this.props as TranscripterInternalProps).socketState === CONNECTED} onClick={(evt) => { this.resetSessionId(); }}>reset</button>
+                        </div>
+                        <div className={styles.inputRow}>
+                            <label>Speaker Name</label>
+                            <input
+                                disabled={(this.props as TranscripterInternalProps).socketState === CONNECTED}
+                                type="text" id="speakerName" placeholder="speaker name"
+                                onChange={(evt) => {
+                                    (this.props as TranscripterInternalProps).setSpeakerName(evt.target.value);
+                                }}
+                                value={(this.props as TranscripterInternalProps).speakerName}>
+                            </input>
+                        </div>
+                        <div className={styles.inputRow}>
+                            <label>Language</label>
+                            <select
+                                disabled={(this.props as TranscripterInternalProps).socketState === CONNECTED}
+                                value={(this.props as TranscripterInternalProps).language}
+                                onChange={(evt) => {
+                                    (this.props as TranscripterInternalProps).setLanguage(evt.target.value);
+                                }}
+                                id="language">
+                                {languageOptions}
+                            </select>
+                        </div>
+                        <div className={styles.inputRow}>
+                            <label>Region</label>
+                            <select
+                                disabled={(this.props as TranscripterInternalProps).socketState === CONNECTED}
+                                value={(this.props as TranscripterInternalProps).region}
+                                onChange={(evt) => {
+                                    (this.props as TranscripterInternalProps).setRegion(evt.target.value);
+                                }}
+                                id="region">
+                                {regionOptions}
+                            </select>
+                        </div>
+                        <div className={styles.inputRow}>
+                            <button
+                                disabled={(this.props as TranscripterInternalProps).speakerName === "" || (this.props as TranscripterInternalProps).socketState === CONNECTED}
+                                onClick={async (ev) => {
+                                    if ((this.props as TranscripterInternalProps).socketState === DISCONNECTED) {
+                                        await this.connect();
+                                        // this.record();
+                                    }
+                                }}>Start</button>
+                            <button
+                                disabled={(this.props as TranscripterInternalProps).socketState === DISCONNECTED}
+                                onClick={(ev) => {
+                                    if ((this.props as TranscripterInternalProps).socketState === CONNECTED) {
+                                        this.disconnect();
+                                    }
+                                }}>Stop</button>
+                            <label>{(this.props as TranscripterInternalProps).socketState}</label>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -16,7 +16,8 @@ export class CiStack extends Stack {
         const accountNumber = Stack.of(this).account;
         const { region } = Stack.of(this);
         const pipelineBucket = Bucket.fromBucketArn(this, "pipelineBucket", props?.pipelineBucketArn || "");
-        const repository = ContainerImageRepository.fromRepositoryArn(this, "streamingServerImageRepository", props?.repositoryArn);
+        const streamingServerImageRepository = ContainerImageRepository.fromRepositoryArn(this, "streamingServerImageRepository", props?.streamingServerImageRepositoryArn);
+        const functionsImageRepository = ContainerImageRepository.fromRepositoryArn(this, "functionsImageRepository", props?.functionsImageRepositoryArn);
         const codeRepository = (props?.codeRepositoryArn
             && CodeRepository.fromRepositoryArn(this, "codeRepository", "arn:aws:codecommit:ca-central-1:032791158701:rainmaking.cloud.aws.transcribe"))
             || CodeRepository.fromRepositoryName(this, "codeRepository", "rainmaking.cloud.aws.transcribe");
@@ -46,7 +47,7 @@ export class CiStack extends Stack {
             }),
             environmentVariables: {
                 IMAGE_REPO_NAME: {
-                    value: repository.repositoryName,
+                    value: streamingServerImageRepository.repositoryName,
                 },
                 IMAGE_TAG: {
                     value: "develop",
@@ -69,12 +70,12 @@ export class CiStack extends Stack {
                         retention: RetentionDays.ONE_DAY,
                         logGroupName: `${props?.applicationName}_app_build`,
                     }),
-                    prefix: "develop",
+                    prefix: "develop/server",
                 },
             },
         });
         if (streamingServerBuilderDevelopBuildProject.role) {
-            repository.grantPullPush(streamingServerBuilderDevelopBuildProject.role);
+            streamingServerImageRepository.grantPullPush(streamingServerBuilderDevelopBuildProject.role);
             buildArtifactsBucket.grantReadWrite(streamingServerBuilderDevelopBuildProject.role);
             streamingServerBuilderDevelopBuildProject.role.addToPrincipalPolicy(new PolicyStatement({
                 effect: Effect.ALLOW,
@@ -88,6 +89,49 @@ export class CiStack extends Stack {
                 ],
             }));
             pipelineBucket.grantReadWrite(streamingServerBuilderDevelopBuildProject.role);
+        }
+
+        const functionsBuilderDevelopBuildProject = new Project(this, "functionsBuilderDevelopBuildProject", {
+            source: developSource,
+            projectName: `${props?.applicationName}_functions_develop_build`,
+            description: `${props?.applicationName} functions develop branch build project`,
+            buildSpec: BuildSpec.fromSourceFilename("applications/server/functions/buildspec.yaml"),
+            artifacts: Artifacts.s3({
+                bucket: buildArtifactsBucket,
+            }),
+            environmentVariables: {
+                IMAGE_REPO_NAME: {
+                    value: functionsImageRepository.repositoryName,
+                },
+                IMAGE_TAG: {
+                    value: "develop",
+                },
+                AWS_ACCOUNT_ID: {
+                    value: accountNumber,
+                },
+                AWS_DEFAULT_REGION: {
+                    value: region,
+                },
+            },
+            environment: {
+                buildImage: LinuxBuildImage.STANDARD_5_0,
+                computeType: ComputeType.SMALL,
+                privileged: true,
+            },
+            logging: {
+                cloudWatch: {
+                    logGroup: new LogGroup(this, `${props?.applicationName}_functions_app_build`, {
+                        retention: RetentionDays.ONE_DAY,
+                        logGroupName: `${props?.applicationName}_functions_app_build`,
+                    }),
+                    prefix: "develop/functions",
+                },
+            },
+        });
+        if (functionsBuilderDevelopBuildProject.role) {
+            functionsImageRepository.grantPullPush(functionsBuilderDevelopBuildProject.role);
+            buildArtifactsBucket.grantReadWrite(functionsBuilderDevelopBuildProject.role);
+            pipelineBucket.grantReadWrite(functionsBuilderDevelopBuildProject.role);
         }
     }
 }

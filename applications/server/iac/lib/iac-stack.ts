@@ -9,6 +9,8 @@ import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
 import { CiStack } from "./ci/ci-stack";
 import { CiStackProps } from "./ci/ci-stack-props";
+import { FunctionsStack } from "./functions/functions-stack";
+import { StorageStack } from "./storage/storage-stack";
 import { StreamingServerStack } from "./streaming-server-stack";
 import { StreamingServerStackProps } from "./streaming-server-stack-props";
 
@@ -59,7 +61,7 @@ export class IacStack extends Stack {
         } as ContainerDefinitionOptions;
 
         const streamingServerProps = Object.assign(props, {}) as StreamingServerStackProps;
-        streamingServerProps.repositoryArn = process.env.AWSCDK_ECR_REPOSITORYARN || "";
+        streamingServerProps.repositoryArn = process.env.AWSCDK_ECR_SERVERIMAGE_REPOSITORYARN || "";
         streamingServerProps.streamingServerAssignPublicIp = true;
         streamingServerProps.streamingServerContainerDefinition = containerDefinition;
         streamingServerProps.streamingServerDeploymentType = DeploymentControllerType.CODE_DEPLOY;
@@ -83,9 +85,15 @@ export class IacStack extends Stack {
             applicationName: "streamingSpeechToTextServer",
             codeRepositoryArn: process.env.AWSCDK_CODECOMMIT_REPOSITORYARN || "",
             codeRepositoryName: process.env.AWSCDK_CODECOMMIT_REPOSITORYNAME || "",
+            functionsImageRepositoryArn: process.env.AWSCDK_ECR_FUNCTIONS_REPOSITORYARN || "",
             pipelineBucketArn: process.env.AWSCDK_CODEPIPELINE_SOURCE_BUCKET_ARN || "",
-            repositoryArn: process.env.AWSCDK_ECR_REPOSITORYARN || "",
+            streamingServerImageRepositoryArn: process.env.AWSCDK_ECR_SERVERIMAGE_REPOSITORYARN || "",
         }) as CiStackProps;
         const ciStack = new CiStack(this, "ciStack", ciStackProps);
+        const functionsStack = new FunctionsStack(this, "functionsStack", {
+            ...props,
+            ...{ functionsImageRepositoryArn: process.env.AWSCDK_ECR_FUNCTIONS_REPOSITORYARN || "" },
+        });
+        const storageStack = new StorageStack(this, "storageSTack", { ...props, ...{ executionRole: functionsStack.lambdaExecutionRole } });
     }
 }
