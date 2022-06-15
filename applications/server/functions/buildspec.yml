@@ -1,0 +1,38 @@
+version: 0.2
+phases:
+    install:
+        commands:
+            - echo --------INSTALL--------------------------------------------------------------------------------------------------------------------
+            - npm install -g typescript
+    pre_build:
+        commands:
+            - echo --------PRE_BUILD--------------------------------------------------------------------------------------------------------------------
+            - echo Logging into ECR
+            - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+            - export BUILD_TAG=$(date +%Y%m%d%H%M)
+            - echo setting container tag $BUILD_TAG
+    build:
+        commands:
+            - echo --------BUILD--------------------------------------------------------------------------------------------------------------------
+            - cd applications/server/functions
+            - echo Building Lambda Functions Docker image...
+            - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG -f ./Dockerfile.x64 .
+            - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+            - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$BUILD_TAG 
+            - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER
+            - echo --------------------------------------------------------------------------------------------------------------------------------------
+            - echo Pushing image
+            - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+            - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$BUILD_TAG
+            - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER
+            - echo --------------------------------------------------------------------------------------------------------------------------------------
+            - echo Deploying Lambda Functions
+            - export FUNCTIONS_TARGET_IMAGE_TAG=$CODEBUILD_BUILD_NUMBER
+    post_build:
+        commands:
+            - echo --------POST_BUILD--------------------------------------------------------------------------------------------------------------------
+artifacts:
+    files:
+        - 'appspec.json'
+    base-directory: applications/server/functions
+    name: /builds/$CODEBUILD_BUILD_NUMBER.zip

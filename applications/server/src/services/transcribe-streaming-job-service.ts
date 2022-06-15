@@ -34,21 +34,23 @@ export type ContentType = {
  */
 export type TranscribeMessageEvent = {
     Transcript: {
-        Results: [{Alternatives: [{
-            Items: [{
-                Content: string,
-                EndTime: number,
-                Stable: boolean,
-                StartTime: number,
-                Type: ContentType,
-                VocabularyFilterMatch: false
+        Results: [{
+            Alternatives: [{
+                Items: [{
+                    Content: string,
+                    EndTime: number,
+                    Stable: boolean,
+                    StartTime: number,
+                    Type: string,
+                    VocabularyFilterMatch: false
+                }],
+                Transcript: string
             }],
-            Transcript: string
-        }]}],
-        EndTime: number,
-        IsPartial: boolean,
-        ResultId: string,
-        StartTime: number
+            EndTime: number,
+            IsPartial: boolean,
+            ResultId: string,
+            StartTime: number
+        }]
     }
 }
 

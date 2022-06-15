@@ -1,0 +1,26 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "rules": {
+        "semi": ["error", "always"],
+        "quotes": ["error", "double"],
+        "no-unused-vars": ["warn"],
+        "eol-last": "warn",
+        "indent": ["error", 4],
+        "space-before-function-paren": "off",
+        "lines-between-class-members": "off",
+        "generator-star-spacing": "off",
+        "padded-blocks": "off",
+        "camelcase": "off"
+    }
+}

@@ -101,7 +101,7 @@ function convertAudioToBinaryMessage(audioChunk: Float32Array, outputSampleRate:
     //convert the JSON object + headers into a binary event stream message
     let binary = eventStreamMarshaller.marshall(audioEventMessage);
     return binary;
-}
+}   
 
 function downsampleBuffer(buffer: Float32Array, inputSampleRate = 44100, outputSampleRate = 16000) {
 

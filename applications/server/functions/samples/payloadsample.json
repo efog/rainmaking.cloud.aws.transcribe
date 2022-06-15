@@ -1,0 +1,279 @@
+{
+    "Results": [
+        {
+            "Alternatives": [
+                {
+                    "Items": [
+                        {
+                            "Confidence": 1,
+                            "Content": "Enter",
+                            "EndTime": 1.2975,
+                            "Stable": true,
+                            "StartTime": 0.73,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "a",
+                            "EndTime": 1.4075,
+                            "Stable": true,
+                            "StartTime": 1.2975,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "session",
+                            "EndTime": 1.9175,
+                            "Stable": true,
+                            "StartTime": 1.4075,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 0.9706,
+                            "Content": "ID",
+                            "EndTime": 2.3675,
+                            "Stable": true,
+                            "StartTime": 1.9175,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "manually",
+                            "EndTime": 3.2225,
+                            "Stable": true,
+                            "StartTime": 2.3675,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "or",
+                            "EndTime": 3.5375,
+                            "Stable": true,
+                            "StartTime": 3.2225,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "use",
+                            "EndTime": 3.9975,
+                            "Stable": true,
+                            "StartTime": 3.5375,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "the",
+                            "EndTime": 4.1575,
+                            "Stable": true,
+                            "StartTime": 3.9975,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "reset",
+                            "EndTime": 4.7225,
+                            "Stable": true,
+                            "StartTime": 4.1575,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "button",
+                            "EndTime": 5.4725,
+                            "Stable": true,
+                            "StartTime": 4.7225,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "select",
+                            "EndTime": 5.9775,
+                            "Stable": true,
+                            "StartTime": 5.4725,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "the",
+                            "EndTime": 6.0875,
+                            "Stable": true,
+                            "StartTime": 5.9775,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "language",
+                            "EndTime": 6.7175,
+                            "Stable": true,
+                            "StartTime": 6.0875,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "and",
+                            "EndTime": 6.8575,
+                            "Stable": true,
+                            "StartTime": 6.7175,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 0.8631,
+                            "Content": "their",
+                            "EndTime": 7.0375,
+                            "Stable": true,
+                            "StartTime": 6.8575,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 0.9975,
+                            "Content": "region",
+                            "EndTime": 7.7075,
+                            "Stable": true,
+                            "StartTime": 7.0375,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "upon",
+                            "EndTime": 8.2475,
+                            "Stable": true,
+                            "StartTime": 7.9075,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "the",
+                            "EndTime": 8.3575,
+                            "Stable": true,
+                            "StartTime": 8.2475,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "selection",
+                            "EndTime": 8.8975,
+                            "Stable": true,
+                            "StartTime": 8.3575,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "of",
+                            "EndTime": 9.0175,
+                            "Stable": true,
+                            "StartTime": 8.8975,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 0.5219,
+                            "Content": "the",
+                            "EndTime": 9.1275,
+                            "Stable": true,
+                            "StartTime": 9.0175,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "language",
+                            "EndTime": 9.7575,
+                            "Stable": true,
+                            "StartTime": 9.1275,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "is",
+                            "EndTime": 9.8975,
+                            "Stable": true,
+                            "StartTime": 9.7575,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "simple",
+                            "EndTime": 10.3375,
+                            "Stable": true,
+                            "StartTime": 9.8975,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "text",
+                            "EndTime": 10.7175,
+                            "Stable": true,
+                            "StartTime": 10.3375,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "will",
+                            "EndTime": 10.8875,
+                            "Stable": true,
+                            "StartTime": 10.7175,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "be",
+                            "EndTime": 11.0575,
+                            "Stable": true,
+                            "StartTime": 10.8875,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Confidence": 1,
+                            "Content": "displayed",
+                            "EndTime": 11.835,
+                            "Stable": true,
+                            "StartTime": 11.0575,
+                            "Type": "pronunciation",
+                            "VocabularyFilterMatch": false
+                        },
+                        {
+                            "Content": ".",
+                            "EndTime": 11.835,
+                            "Stable": true,
+                            "StartTime": 11.835,
+                            "Type": "punctuation",
+                            "VocabularyFilterMatch": false
+                        }
+                    ],
+                    "Transcript": "Enter a session ID manually or use the reset button select the language and their region upon the selection of the language is simple text will be displayed."
+                }
+            ],
+            "EndTime": 11.835,
+            "IsPartial": false,
+            "ResultId": "b4c3d6ff-1573-4ec8-a0be-d893f86f9722",
+            "StartTime": 0.73
+        }
+    ],
+    "speakerName": null,
+    "callId": "fee13afa-64e4-4a5d-bd37-7287d17d0ec3"
+}
