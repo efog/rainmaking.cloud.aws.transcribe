@@ -59,7 +59,7 @@ wss.on("connection", async (inputWebSocket: WebSocket, request: any, client: any
         });
         service.onmessage(async (evt: TranscribeMessageEvent) => {
             trace(`${JSON.stringify(evt)}`);
-            if (!evt.Transcript.Results[0].IsPartial) {
+            if (evt.Transcript.Results.length > 0 && !evt.Transcript.Results[0].IsPartial) {
                 const payload = Object.assign(evt.Transcript, { speakerName, callId });
                 await sqsService.sendMessage(payload, queueUrl);
             }
