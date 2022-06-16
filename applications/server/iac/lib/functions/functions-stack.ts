@@ -2,6 +2,7 @@ import {
     Duration,
     Environment, RemovalPolicy, Stack, StackProps,
 } from "aws-cdk-lib";
+import { ITable } from "aws-cdk-lib/aws-dynamodb";
 import { Repository } from "aws-cdk-lib/aws-ecr";
 import {
     Alias,
@@ -16,6 +17,7 @@ export class FunctionsStackProps implements StackProps {
     baseFunctionsImageTag?: string = "develop";
     debugNames?: string = "-not_this";
     description?: string;
+    transcriptTable: ITable;
     env?: Environment;
     functionsImageRepositoryArn: string;
     functionsTargetImageTag?: string;
@@ -57,8 +59,9 @@ export class FunctionsStack extends Stack {
                 },
                 description: "Transcripts Message Queue Handler",
                 environment: {
-                    DEBUG: props?.debugNames || "-not_this",
+                    DEBUG: props?.debugNames || "*,-not_this",
                     FUNCTIONS_IMAGE_TAG: props?.functionsTargetImageTag || baseFunctionsImageTag,
+                    DYNAMODB_TRANSCRIPTS_TABLENAME: props?.transcriptTable.tableName,
                 },
                 logRetention: RetentionDays.ONE_DAY,
                 timeout: Duration.seconds(10),
@@ -76,5 +79,6 @@ export class FunctionsStack extends Stack {
             version: transcriptMessageEventFunction.currentVersion,
         });
         this.lambdaExecutionRole = transcriptMessageEventFunction.role;
+        props?.transcriptTable.grantReadWriteData(this.lambdaExecutionRole);
     }
 }

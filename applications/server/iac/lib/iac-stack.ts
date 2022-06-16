@@ -90,13 +90,14 @@ export class IacStack extends Stack {
             streamingServerImageRepositoryArn: process.env.AWSCDK_ECR_SERVERIMAGE_REPOSITORYARN || "",
         }) as CiStackProps;
         const ciStack = new CiStack(this, "ciStack", ciStackProps);
+        const storageStack = new StorageStack(this, "storageSTack", { ...props });
         const functionsStack = new FunctionsStack(this, "functionsStack", {
             ...props,
             ...{
+                transcriptTable: storageStack.transcriptTable,
                 functionsImageRepositoryArn: process.env.AWSCDK_ECR_FUNCTIONS_REPOSITORYARN || "",
                 transcriptionMessagesQueue: streamingServerStack.outputQueue,
             },
         });
-        const storageStack = new StorageStack(this, "storageSTack", { ...props, ...{ executionRole: functionsStack.lambdaExecutionRole } });
     }
 }

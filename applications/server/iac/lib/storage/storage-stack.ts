@@ -4,13 +4,11 @@ import {
 import {
     AttributeType, BillingMode, Table,
 } from "aws-cdk-lib/aws-dynamodb";
-import { IRole } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 
 export class StorageStackProps implements StackProps {
     description?: string;
     env?: Environment;
-    executionRole?: IRole;
     tags?: {
         [key: string]: string;
     };
@@ -50,8 +48,5 @@ export class StorageStack extends Stack {
             },
         });
         this.transcriptTable = transcriptsTable;
-        if (props?.executionRole) {
-            this.transcriptTable.grantReadWriteData(props?.executionRole);
-        }
     }
 }
