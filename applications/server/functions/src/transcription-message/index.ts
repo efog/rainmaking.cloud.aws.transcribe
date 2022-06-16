@@ -1,5 +1,4 @@
 import { APIGatewayProxyResultV2, SQSEvent } from "aws-lambda";
-import { DateTime } from "luxon";
 import Debug from "debug";
 import { saveRecord } from "../services/dynamodb-service";
 
@@ -46,30 +45,51 @@ export async function handleMessageEvent(event: SQSEvent): Promise<APIGatewayPro
         const body = JSON.parse(record.body) as TranscribeMessageEvent;
         return body;
     });
-    try {
-        for (let index = 0; index < messages.length; index++) {
-            const message = messages[index];
-            trace(`processing message ${JSON.stringify(message)}`);
-            const callId = message.callId;
-            const endTime = message.Results[0].EndTime;
-            const resultId = message.Results[0].ResultId;
-            const speakerName = message.speakerName;
-            const startTime = message.Results[0].StartTime;
-            const timestamp = message.timestamp;
-            const transcript = message.Results[0].Alternatives[0].Transcript;
-            const record = { callId, endTime, resultId, speakerName, startTime, transcript, timestamp };
-            trace(`saving ${JSON.stringify(record)}`);
-            await saveRecord(record, process.env.DYNAMODB_TRANSCRIPTS_TABLENAME || "");
-        }
-        return {
-            statusCode: 200
+    const savePromises = messages.map((message) => {
+        trace(`processing message ${JSON.stringify(message)}`);
+        const callId = message.callId;
+        const endTime = message.Results[0].EndTime;
+        const resultId = message.Results[0].ResultId;
+        const speakerName = message.speakerName;
+        const startTime = message.Results[0].StartTime;
+        const timestamp = message.timestamp;
+        const transcript = message.Results[0].Alternatives[0].Transcript;
+        const record = {
+            callId: {
+                S: callId
+            },
+            endTime: {
+                N: endTime.toString()
+            },
+            resultId: {
+                S: resultId
+            },
+            speakerName: {
+                S: speakerName || ""
+            },
+            startTime: {
+                N: startTime.toString()
+            },
+            transcript: {
+                S: transcript
+            },
+            timestamp: {
+                S: timestamp
+            }
         };
+        trace(`saving ${JSON.stringify(record)}`);
+        return saveRecord(record, process.env.DYNAMODB_TRANSCRIPTS_TABLENAME || "");
+    });
+    try {
+        await Promise.all(savePromises);
     }
-    catch (err: any) {
-        error(`save record produced an error: ${JSON.stringify(err)}`);
+    catch(err) {
         return {
             statusCode: 500,
-            body: err
+            body: JSON.stringify(err)
         };
     }
+    return {
+        statusCode: 200
+    };
 }

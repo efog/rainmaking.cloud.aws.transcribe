@@ -75,8 +75,8 @@ export class FunctionsStack extends Stack {
             transcriptMessageEventFunction.addEventSource(sqsTranscriptionMessageEventSource);
         }
         const transcriptMessageEventFunctionAlias = new Alias(this, "transcriptMessageEventFunctionStagingAlias", {
-            aliasName: "staging",
-            version: transcriptMessageEventFunction.currentVersion,
+            aliasName: "production",
+            version: transcriptMessageEventFunction.latestVersion,
         });
         this.lambdaExecutionRole = transcriptMessageEventFunction.role;
         props?.transcriptTable.grantReadWriteData(this.lambdaExecutionRole);
