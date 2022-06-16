@@ -10,4 +10,4 @@ WORKDIR /var/task
 COPY package*.json ./
 RUN npm install --only=prod
 COPY --from=builder /var/task/src /var/task/src/
-CMD [ "/var/task/handlers/index.functions.login.post" ]
+CMD [ "/var/task/src/functions/src/index.handleMessageEvent" ]

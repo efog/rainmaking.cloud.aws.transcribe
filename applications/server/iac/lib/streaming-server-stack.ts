@@ -55,6 +55,7 @@ export class StreamingServerStack extends Stack {
     streamingServerApplicationLoadBalancerProductionListener: ApplicationListener;
     streamingServerApplicationLoadBalancerTestListener: ApplicationListener;
     transcribeClientRole: Role;
+    outputQueue: any;
 
     /**
      * Default constructor
@@ -274,5 +275,6 @@ export class StreamingServerStack extends Stack {
         const queueArnOutput = new CfnOutput(this, "outputQueueArn", {
             value: targetQueue.queueArn,
         });
+        this.outputQueue = targetQueue;
     }
 }

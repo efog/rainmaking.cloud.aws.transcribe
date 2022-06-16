@@ -92,7 +92,10 @@ export class IacStack extends Stack {
         const ciStack = new CiStack(this, "ciStack", ciStackProps);
         const functionsStack = new FunctionsStack(this, "functionsStack", {
             ...props,
-            ...{ functionsImageRepositoryArn: process.env.AWSCDK_ECR_FUNCTIONS_REPOSITORYARN || "" },
+            ...{
+                functionsImageRepositoryArn: process.env.AWSCDK_ECR_FUNCTIONS_REPOSITORYARN || "",
+                transcriptionMessagesQueue: streamingServerStack.outputQueue,
+            },
         });
         const storageStack = new StorageStack(this, "storageSTack", { ...props, ...{ executionRole: functionsStack.lambdaExecutionRole } });
     }

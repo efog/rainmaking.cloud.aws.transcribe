@@ -7,7 +7,9 @@ import {
     Alias,
     Architecture, DockerImageCode, DockerImageFunction, DockerImageFunctionProps, Tracing,
 } from "aws-cdk-lib/aws-lambda";
+import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
+import { IQueue } from "aws-cdk-lib/aws-sqs";
 import { Construct } from "constructs";
 
 export class FunctionsStackProps implements StackProps {
@@ -20,6 +22,7 @@ export class FunctionsStackProps implements StackProps {
     tags?: {
         [key: string]: string;
     };
+    transcriptionMessagesQueue: IQueue;
 }
 
 export class FunctionsStack extends Stack {
@@ -46,7 +49,7 @@ export class FunctionsStack extends Stack {
                 architecture: Architecture.X86_64,
                 code: DockerImageCode.fromEcr(functionsImageRepository, {
                     tag: props?.functionsTargetImageTag || baseFunctionsImageTag,
-                    cmd: ["/var/task/src/handlers/index.functions.transcriptMessageEvent"],
+                    cmd: ["/var/task/src/functions/src/index.handleMessageEvent"],
                 }),
                 currentVersionOptions: {
                     description: `uses image tag ${props?.functionsTargetImageTag || baseFunctionsImageTag}`,
@@ -62,6 +65,12 @@ export class FunctionsStack extends Stack {
                 tracing: Tracing.ACTIVE,
             } as DockerImageFunctionProps,
         }));
+        if (props?.transcriptionMessagesQueue) {
+            const sqsTranscriptionMessageEventSource = new SqsEventSource(props?.transcriptionMessagesQueue, {
+                batchSize: 10,
+            });
+            transcriptMessageEventFunction.addEventSource(sqsTranscriptionMessageEventSource);
+        }
         const transcriptMessageEventFunctionAlias = new Alias(this, "transcriptMessageEventFunctionStagingAlias", {
             aliasName: "staging",
             version: transcriptMessageEventFunction.currentVersion,

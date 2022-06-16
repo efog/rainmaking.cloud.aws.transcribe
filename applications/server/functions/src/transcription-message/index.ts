@@ -36,11 +36,11 @@ export type TranscribeMessageEvent = {
 }
 
 /**
- * Handles event from SQS queue
+ * Handles message event from SQS queue
  * @param event {SQSEvent} SQS payload
  * @returns {Promise<APIGatewayProxyResultV2>} handler result
  */
-export async function event(event: SQSEvent): Promise<APIGatewayProxyResultV2> {
+export async function handleMessageEvent(event: SQSEvent): Promise<APIGatewayProxyResultV2> {
     trace(`received event ${JSON.stringify(event)}`);
     const messages = event.Records.map((record) => {
         const body = JSON.parse(record.body) as TranscribeMessageEvent;
