@@ -49,7 +49,7 @@ export class FunctionsStack extends Stack {
                 architecture: Architecture.X86_64,
                 code: DockerImageCode.fromEcr(functionsImageRepository, {
                     tag: props?.functionsTargetImageTag || baseFunctionsImageTag,
-                    cmd: ["/var/task/src/functions/src/index.handleMessageEvent"],
+                    cmd: ["/var/task/src/functions/src/index.handlers.handleMessageEvent"],
                 }),
                 currentVersionOptions: {
                     description: `uses image tag ${props?.functionsTargetImageTag || baseFunctionsImageTag}`,
