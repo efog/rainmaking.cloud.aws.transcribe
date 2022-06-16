@@ -59,7 +59,7 @@ export async function handleMessageEvent(event: SQSEvent): Promise<APIGatewayPro
             const transcript = message.Results[0].Alternatives[0].Transcript;
             const record = { callId, endTime, resultId, speakerName, startTime, transcript, timestamp };
             trace(`saving ${JSON.stringify(record)}`);
-            await saveRecord(record, process.env.DYNAMODB_TRANSCRIPTS_TABLENAME || "")
+            await saveRecord(record, process.env.DYNAMODB_TRANSCRIPTS_TABLENAME || "");
         }
         return {
             statusCode: 200
