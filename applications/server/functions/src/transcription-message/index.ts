@@ -46,22 +46,21 @@ export async function handleMessageEvent(event: SQSEvent): Promise<APIGatewayPro
         const body = JSON.parse(record.body) as TranscribeMessageEvent;
         return body;
     });
-    const saveRecords = messages.map((message: TranscribeMessageEvent) => {
-        trace(`processing message ${JSON.stringify(message)}`);
-        const callId = message.callId;
-        const endTime = message.Results[0].EndTime;
-        const resultId = message.Results[0].ResultId;
-        const speakerName = message.speakerName;
-        const startTime = message.Results[0].StartTime;
-        const timestamp = message.timestamp;
-        const transcript = message.Results[0].Alternatives[0].Transcript;
-        const record = { callId, endTime, resultId, speakerName, startTime, transcript, timestamp };
-        trace(`saving ${JSON.stringify(record)}`);
-        return saveRecord(record, process.env.DYNAMODB_TRANSCRIPTS_TABLENAME || "");
-    });
     try {
-        trace("awaiting all promises completion");
-        await Promise.all(saveRecords);
+        for (let index = 0; index < messages.length; index++) {
+            const message = messages[index];
+            trace(`processing message ${JSON.stringify(message)}`);
+            const callId = message.callId;
+            const endTime = message.Results[0].EndTime;
+            const resultId = message.Results[0].ResultId;
+            const speakerName = message.speakerName;
+            const startTime = message.Results[0].StartTime;
+            const timestamp = message.timestamp;
+            const transcript = message.Results[0].Alternatives[0].Transcript;
+            const record = { callId, endTime, resultId, speakerName, startTime, transcript, timestamp };
+            trace(`saving ${JSON.stringify(record)}`);
+            await saveRecord(record, process.env.DYNAMODB_TRANSCRIPTS_TABLENAME || "")
+        }
         return {
             statusCode: 200
         };
