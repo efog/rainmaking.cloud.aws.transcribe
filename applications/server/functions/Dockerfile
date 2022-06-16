@@ -9,5 +9,5 @@ FROM public.ecr.aws/lambda/nodejs:14-arm64
 WORKDIR /var/task
 COPY package*.json ./
 RUN npm install --only=prod
-COPY --from=builder /var/task/src /var/task/src/
-CMD [ "/var/task/src/functions/src/index.handlers.handleMessageEvent" ]
+COPY --from=builder /var/task/src /var/task/
+CMD [ "/var/task/index.handlers.handleMessageEvent" ]
