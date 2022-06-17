@@ -138,13 +138,31 @@ export class CiStack extends Stack {
             buildArtifactsBucket.grantReadWrite(functionsBuilderDevelopBuildProject.role);
             pipelineBucket.grantReadWrite(functionsBuilderDevelopBuildProject.role);
             props.trancriptionMessagesHandlerFunction.role?.attachInlinePolicy(
-                new Policy(this, "functionsBuilderDevelopBuildProjectGrantUpdateFunctionCode", {
+                new Policy(this, "uselessPolicySinceICantDeleteThisAnymore", {
+                    document: new PolicyDocument({
+                        statements: [
+                            new PolicyStatement({
+                                effect: Effect.ALLOW,
+                                actions: [
+                                    "Lambda:Invoke",
+                                ],
+                                resources: [
+                                    props.trancriptionMessagesHandlerFunction.functionArn,
+                                ],
+                            }),
+                        ],
+                    }),
+                }),
+            );
+            functionsBuilderDevelopBuildProject.role.attachInlinePolicy(
+                new Policy(this, "functionsBuilderDevelopBuildProjectRoleGrantUpdateFunctionCode", {
                     document: new PolicyDocument({
                         statements: [
                             new PolicyStatement({
                                 effect: Effect.ALLOW,
                                 actions: [
                                     "Lambda:UpdateFunctionCode",
+                                    "Lambda:PublishVersion",
                                 ],
                                 resources: [
                                     props.trancriptionMessagesHandlerFunction.functionArn,
