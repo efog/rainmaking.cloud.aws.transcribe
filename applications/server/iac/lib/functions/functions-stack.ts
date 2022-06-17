@@ -31,6 +31,7 @@ export class FunctionsStack extends Stack {
 
     private props: FunctionsStackProps | undefined;
     public lambdaExecutionRole: any;
+    transcriptMessageEventFunction: DockerImageFunction;
 
     /**
      * Default constructor
@@ -86,6 +87,7 @@ export class FunctionsStack extends Stack {
             transcriptMessageEventFunctionProdAlias.addEventSource(sqsTranscriptionMessageEventSource);
         }
         this.lambdaExecutionRole = transcriptMessageEventFunction.role;
+        this.transcriptMessageEventFunction = transcriptMessageEventFunction;
         props?.transcriptTable.grantReadWriteData(this.lambdaExecutionRole);
     }
 }

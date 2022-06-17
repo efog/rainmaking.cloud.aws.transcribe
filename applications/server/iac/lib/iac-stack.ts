@@ -81,15 +81,6 @@ export class IacStack extends Stack {
         // eslint-disable-next-line no-unused-vars
         const streamingServerStack = new StreamingServerStack(this, "streamingServer", streamingServerProps);
 
-        const ciStackProps = Object.assign(props, {
-            applicationName: "streamingSpeechToTextServer",
-            codeRepositoryArn: process.env.AWSCDK_CODECOMMIT_REPOSITORYARN || "",
-            codeRepositoryName: process.env.AWSCDK_CODECOMMIT_REPOSITORYNAME || "",
-            functionsImageRepositoryArn: process.env.AWSCDK_ECR_FUNCTIONS_REPOSITORYARN || "",
-            pipelineBucketArn: process.env.AWSCDK_CODEPIPELINE_SOURCE_BUCKET_ARN || "",
-            streamingServerImageRepositoryArn: process.env.AWSCDK_ECR_SERVERIMAGE_REPOSITORYARN || "",
-        }) as CiStackProps;
-        const ciStack = new CiStack(this, "ciStack", ciStackProps);
         const storageStack = new StorageStack(this, "storageSTack", { ...props });
         const functionsStack = new FunctionsStack(this, "functionsStack", {
             ...props,
@@ -99,5 +90,16 @@ export class IacStack extends Stack {
                 transcriptionMessagesQueue: streamingServerStack.outputQueue,
             },
         });
+
+        const ciStackProps = Object.assign(props, {
+            applicationName: "streamingSpeechToTextServer",
+            codeRepositoryArn: process.env.AWSCDK_CODECOMMIT_REPOSITORYARN || "",
+            codeRepositoryName: process.env.AWSCDK_CODECOMMIT_REPOSITORYNAME || "",
+            functionsImageRepositoryArn: process.env.AWSCDK_ECR_FUNCTIONS_REPOSITORYARN || "",
+            pipelineBucketArn: process.env.AWSCDK_CODEPIPELINE_SOURCE_BUCKET_ARN || "",
+            streamingServerImageRepositoryArn: process.env.AWSCDK_ECR_SERVERIMAGE_REPOSITORYARN || "",
+            trancriptionMessagesHandlerFunction: functionsStack.transcriptMessageEventFunction,
+        }) as CiStackProps;
+        const ciStack = new CiStack(this, "ciStack", ciStackProps);
     }
 }

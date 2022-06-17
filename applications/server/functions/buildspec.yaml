@@ -31,6 +31,7 @@ phases:
     post_build:
         commands:
             - echo --------POST_BUILD--------------------------------------------------------------------------------------------------------------------
+            - aws lambda update-function-code --function-name $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME --image-uri $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER
 artifacts:
     files:
         - 'appspec.json'

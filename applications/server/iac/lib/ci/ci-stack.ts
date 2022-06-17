@@ -112,6 +112,9 @@ export class CiStack extends Stack {
                 AWS_DEFAULT_REGION: {
                     value: region,
                 },
+                FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME: {
+                    value: props.trancriptionMessagesHandlerFunction.functionName,
+                },
             },
             environment: {
                 buildImage: LinuxBuildImage.STANDARD_5_0,
