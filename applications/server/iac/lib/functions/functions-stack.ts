@@ -6,7 +6,7 @@ import { ITable } from "aws-cdk-lib/aws-dynamodb";
 import { Repository } from "aws-cdk-lib/aws-ecr";
 import {
     Alias,
-    Architecture, DockerImageCode, DockerImageFunction, DockerImageFunctionProps, Tracing,
+    Architecture, DockerImageCode, DockerImageFunction, DockerImageFunctionProps, Tracing, Version,
 } from "aws-cdk-lib/aws-lambda";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
@@ -68,16 +68,23 @@ export class FunctionsStack extends Stack {
                 tracing: Tracing.ACTIVE,
             } as DockerImageFunctionProps,
         }));
+        const transcriptMessageEventFunctionVersion = new Version(this, "transcriptMessageEventFunctionStagingVersion", {
+            lambda: transcriptMessageEventFunction,
+        });
+        const transcriptMessageEventFunctionProdAlias = new Alias(this, "transcriptMessageEventFunctionProductionAlias", {
+            aliasName: "prod",
+            version: transcriptMessageEventFunctionVersion,
+        });
+        const transcriptMessageEventFunctionStagingAlias = new Alias(this, "transcriptMessageEventFunctionStagingAlias", {
+            aliasName: "staging",
+            version: transcriptMessageEventFunction.latestVersion,
+        });
         if (props?.transcriptionMessagesQueue) {
             const sqsTranscriptionMessageEventSource = new SqsEventSource(props?.transcriptionMessagesQueue, {
                 batchSize: 10,
             });
-            transcriptMessageEventFunction.addEventSource(sqsTranscriptionMessageEventSource);
+            transcriptMessageEventFunctionProdAlias.addEventSource(sqsTranscriptionMessageEventSource);
         }
-        const transcriptMessageEventFunctionAlias = new Alias(this, "transcriptMessageEventFunctionStagingAlias", {
-            aliasName: "production",
-            version: transcriptMessageEventFunction.latestVersion,
-        });
         this.lambdaExecutionRole = transcriptMessageEventFunction.role;
         props?.transcriptTable.grantReadWriteData(this.lambdaExecutionRole);
     }

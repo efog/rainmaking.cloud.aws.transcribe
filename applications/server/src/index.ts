@@ -43,7 +43,7 @@ wss.on("connection", async (inputWebSocket: WebSocket, request: any, client: any
     const languageCode = path.searchParams.get("language") || "en-US";
     const region = path.searchParams.get("region") || process.env.AWS_DEFAULT_REGION;
     const sampleRate = path.searchParams.get("sampleRate") || "44100";
-    const speakerName = path.searchParams.get("speakerName") || null;
+    const speakerName = path.searchParams.get("username") || null;
     const callId = path.searchParams.get("callId") || null;
     const settings = { awsAccessKeyId, awsSecretAccessKey, awsSessionToken, inputWebSocket, languageCode, region, sampleRate, speakerName } as TranscribeStreamingJobServiceSettings;
 
