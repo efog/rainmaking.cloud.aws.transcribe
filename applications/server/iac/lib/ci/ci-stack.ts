@@ -7,7 +7,9 @@ import {
 } from "aws-cdk-lib/aws-codebuild";
 import { Stack } from "aws-cdk-lib";
 import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
-import { Effect, Policy, PolicyDocument, PolicyStatement } from "aws-cdk-lib/aws-iam";
+import {
+    Effect, Policy, PolicyDocument, PolicyStatement,
+} from "aws-cdk-lib/aws-iam";
 import { CiStackProps } from "./ci-stack-props";
 
 export class CiStack extends Stack {
