@@ -7,7 +7,7 @@ import {
 } from "aws-cdk-lib/aws-codebuild";
 import { Stack } from "aws-cdk-lib";
 import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
-import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
+import { Effect, Policy, PolicyDocument, PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { CiStackProps } from "./ci-stack-props";
 
 export class CiStack extends Stack {
@@ -135,6 +135,23 @@ export class CiStack extends Stack {
             functionsImageRepository.grantPullPush(functionsBuilderDevelopBuildProject.role);
             buildArtifactsBucket.grantReadWrite(functionsBuilderDevelopBuildProject.role);
             pipelineBucket.grantReadWrite(functionsBuilderDevelopBuildProject.role);
+            props.trancriptionMessagesHandlerFunction.role?.attachInlinePolicy(
+                new Policy(this, "functionsBuilderDevelopBuildProjectGrantUpdateFunctionCode", {
+                    document: new PolicyDocument({
+                        statements: [
+                            new PolicyStatement({
+                                effect: Effect.ALLOW,
+                                actions: [
+                                    "Lambda:UpdateFunctionCode",
+                                ],
+                                resources: [
+                                    props.trancriptionMessagesHandlerFunction.functionArn,
+                                ],
+                            }),
+                        ],
+                    }),
+                }),
+            );
         }
     }
 }
