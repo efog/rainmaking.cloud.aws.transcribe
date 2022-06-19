@@ -1,0 +1,20 @@
+{
+    "Records": [
+        {
+            "messageId": "3f4956b6-a6d3-4bc2-942f-657c4ce41fd0",
+            "receiptHandle": "AQEB4PuqNNX90pIgfYfg8Bc6ot9UyqRKSypEkmhvAZAe1N2o1Ur5oFxLp5HtL0kiDbX4U3jnAkLPFfo47xezVIhZJ0MN8ZRJUC7bnGcYKejAVKxfjtCsUIziroAJ5/4+A9vXgLYyg37rV9AW8FJjWrtGvV+GDYwEfPWzDLrJec0srmnDQsmO9/aX+yxUMI9Ufl4NXNeoUh6f0opPoeTS/XyCjDjaW7bsQGUbSvMl6S884hBTVhpxTbAXWnBkRfFf+UaXg3aAGIA+voGiAkstO/4U39ahTdIg170OIj2T21lLiytGaB21xSN7f7HXAHfTbzJvENt+9snfHOFVmimjk+nENY0NtX99yZ/n1pII0HnCgMEBMPpbyYT6SN6SakjyRfCAme8Ndhr8LmTKqTD1TWPd40LTFe+OmErg+whEdaBYtqJF2jXkChgheuJe5Viyh2QBdHpN0x7ShEtiCHgQAB4dLlXaejHdQb5jxyL1KxFJGAo=",
+            "body": "{\"Results\":[{\"Alternatives\":[{\"Items\":[{\"Confidence\":1,\"Content\":\"This\",\"EndTime\":1.7475,\"Stable\":true,\"StartTime\":1.49,\"Type\":\"pronunciation\",\"VocabularyFilterMatch\":false},{\"Confidence\":0.8779,\"Content\":\"obligation\",\"EndTime\":2.3875,\"Stable\":true,\"StartTime\":1.7475,\"Type\":\"pronunciation\",\"VocabularyFilterMatch\":false},{\"Confidence\":1,\"Content\":\"captures\",\"EndTime\":2.9675,\"Stable\":true,\"StartTime\":2.3875,\"Type\":\"pronunciation\",\"VocabularyFilterMatch\":false},{\"Confidence\":0.9055,\"Content\":\"their\",\"EndTime\":3.1175,\"Stable\":true,\"StartTime\":2.9675,\"Type\":\"pronunciation\",\"VocabularyFilterMatch\":false},{\"Confidence\":0.996,\"Content\":\"user\",\"EndTime\":3.5175,\"Stable\":true,\"StartTime\":3.1175,\"Type\":\"pronunciation\",\"VocabularyFilterMatch\":false},{\"Confidence\":1,\"Content\":\"reading\",\"EndTime\":3.8775,\"Stable\":true,\"StartTime\":3.5175,\"Type\":\"pronunciation\",\"VocabularyFilterMatch\":false},{\"Confidence\":1,\"Content\":\"a\",\"EndTime\":3.9475,\"Stable\":true,\"StartTime\":3.8775,\"Type\":\"pronunciation\",\"VocabularyFilterMatch\":false},{\"Confidence\":1,\"Content\":\"small\",\"EndTime\":4.3075,\"Stable\":true,\"StartTime\":3.9475,\"Type\":\"pronunciation\",\"VocabularyFilterMatch\":false},{\"Confidence\":1,\"Content\":\"text\",\"EndTime\":4.955,\"Stable\":true,\"StartTime\":4.3075,\"Type\":\"pronunciation\",\"VocabularyFilterMatch\":false},{\"Content\":\".\",\"EndTime\":4.955,\"Stable\":true,\"StartTime\":4.955,\"Type\":\"punctuation\",\"VocabularyFilterMatch\":false}],\"Transcript\":\"This obligation captures their user reading a small text.\"}],\"EndTime\":4.955,\"IsPartial\":false,\"ResultId\":\"d789ed80-b432-41e3-a666-eb4273babeda\",\"StartTime\":1.49}],\"speakerName\":null,\"callId\":\"d52f77ad-0069-4050-a6f3-09945c7ec6f5\",\"timestamp\":\"2022-06-16T19:17:11.912Z\"}",
+            "attributes": {
+                "ApproximateReceiveCount": "1",
+                "SentTimestamp": "1655407031959",
+                "SenderId": "AROAQPIUBL6WZ5LTZ3F5H:7c834c45593e41f7ab1582244cc5b66b",
+                "ApproximateFirstReceiveTimestamp": "1655407031964"
+            },
+            "messageAttributes": {},
+            "md5OfBody": "caf12eef7fa542db605b079e3876cc28",
+            "eventSource": "aws:sqs",
+            "eventSourceARN": "arn:aws:sqs:ca-central-1:032791158701:StreamingServerStackstreamingServ-streamingServerOutputQueueE0F57B5-G6VDXhepQ3gF",
+            "awsRegion": "ca-central-1"
+        }
+    ]
+}

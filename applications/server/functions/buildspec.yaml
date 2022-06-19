@@ -31,11 +31,7 @@ phases:
     post_build:
         commands:
             - echo --------POST_BUILD--------------------------------------------------------------------------------------------------------------------
-            - aws lambda update-function-code --function-name $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME --image-uri $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER
-            - STATE=$(aws lambda get-function --function-name $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME --query 'Configuration.[LastUpdateStatus]' | jq -r '.[0]')
-            - echo "$STATE"
-            - while [ $STATE == "InProgress" ]; do STATE=$(aws lambda get-function --function-name $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME --query 'Configuration.[LastUpdateStatus]' | jq -r '.[0]'); echo "not ready... $STATE"; sleep 3; done;
-            - aws lambda publish-version --function-name $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME
+            - ./publish.sh $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME $AWS_ACCOUNT_ID $AWS_DEFAULT_REGION $IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER
 artifacts:
     files:
         - "appspec.json"
