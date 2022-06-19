@@ -18,7 +18,7 @@ phases:
             - echo Building Lambda Functions Docker image...
             - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG -f ./Dockerfile.x64 .
             - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
-            - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$BUILD_TAG 
+            - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$BUILD_TAG
             - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER
             - echo --------------------------------------------------------------------------------------------------------------------------------------
             - echo Pushing image
@@ -32,9 +32,11 @@ phases:
         commands:
             - echo --------POST_BUILD--------------------------------------------------------------------------------------------------------------------
             - aws lambda update-function-code --function-name $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME --image-uri $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER
+            - STATE=$(aws lambda get-function --function-name $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME --query 'Configuration.[State]' | jq -r '.[0]')
+            - while [ "$STATE" != "Active" ]; do STATE=$(aws lambda get-function --function-name $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME --query 'Configuration.[State]' | jq -r '.[0]'); sleep 3; done;
             - aws lambda publish-version --function-name $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME
 artifacts:
     files:
-        - 'appspec.json'
+        - "appspec.json"
     base-directory: applications/server/functions
     name: /builds/$CODEBUILD_BUILD_NUMBER.zip
