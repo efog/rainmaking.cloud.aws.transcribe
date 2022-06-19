@@ -34,7 +34,7 @@ phases:
             - aws lambda update-function-code --function-name $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME --image-uri $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER
             - STATE=$(aws lambda get-function --function-name $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME --query 'Configuration.[LastUpdateStatus]' | jq -r '.[0]')
             - echo "$STATE"
-            - while [ "$STATE" == "InProgress" ]; do STATE=$(aws lambda get-function --function-name $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME --query 'Configuration.[LastUpdateStatus]' | jq -r '.[0]'); echo "not ready..."; sleep 3; done;
+            - while [ $STATE == "InProgress" ]; do STATE=$(aws lambda get-function --function-name $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME --query 'Configuration.[LastUpdateStatus]' | jq -r '.[0]'); echo "not ready... $STATE"; sleep 3; done;
             - aws lambda publish-version --function-name $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME
 artifacts:
     files:
