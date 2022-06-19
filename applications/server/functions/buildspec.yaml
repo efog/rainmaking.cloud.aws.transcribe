@@ -32,7 +32,7 @@ phases:
         commands:
             - echo --------POST_BUILD--------------------------------------------------------------------------------------------------------------------
             - CURRENT_VERSION=$(aws lambda get-alias --function-name $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME --name prod | jq -r ".FunctionVersion")
-            - TARGET_VERSION=./publish.sh $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME $AWS_ACCOUNT_ID $AWS_DEFAULT_REGION $IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER
+            - TARGET_VERSION=$(./publish.sh $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME $AWS_ACCOUNT_ID $AWS_DEFAULT_REGION $IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER)
             - ./makeappspec.js appspec.json $FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME prod $CURRENT_VERSION $TARGET_VERSION
 artifacts:
     files:

@@ -164,6 +164,7 @@ export class CiStack extends Stack {
                                     "Lambda:UpdateFunctionCode",
                                     "Lambda:PublishVersion",
                                     "Lambda:GetFunction",
+                                    "Lambda:GetAlias",
                                 ],
                                 resources: [
                                     props.trancriptionMessagesHandlerFunction.functionArn,
