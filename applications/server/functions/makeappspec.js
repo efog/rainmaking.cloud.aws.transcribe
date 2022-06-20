@@ -1,6 +1,4 @@
 #! /usr/bin/env node
-const path = require("path");
-
 const data = require(`./${process.argv[2]}`);
 const funcName = process.argv[3];
 const funcAlias = process.argv[4];

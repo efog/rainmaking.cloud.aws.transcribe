@@ -1,4 +1,4 @@
-import { createServer } from "http";
+import { createServer, IncomingMessage } from "http";
 import { DateTime } from "luxon";
 import Debug from "debug";
 import { ErrorMessageEvent, TranscribeMessageEvent, TranscribeStreamingJobService, TranscribeStreamingJobServiceSettings } from "./services/transcribe-streaming-job-service";
@@ -7,6 +7,7 @@ import { WebSocket, WebSocketServer } from "ws";
 import express, { Request, Response } from "express";
 import { IamService } from "./services/iam-service";
 import { SQSService } from "./services/sqs-service";
+import { Duplex } from "stream";
 
 const app = express();
 const debug = Debug("DEBUG::SERVER::index.ts");
@@ -18,7 +19,10 @@ const error = Debug("ERROR::SERVER::index.ts");
 trace(`starting server on port ${process.env.PORT}`);
 
 const server = createServer();
-const wss = new WebSocketServer({
+const wssForAudio = new WebSocketServer({
+    noServer: true
+});
+const wssForMonitor = new WebSocketServer({
     noServer: true
 });
 
@@ -27,19 +31,21 @@ server.on("request", app.get("/api/stt/healthcheck", (request: Request, response
     response.send("Yes, I'm ok");
 }));
 
-wss.on("connection", async (inputWebSocket: WebSocket, request: any, client: any) => {
+wssForAudio.on("connection", async (inputWebSocket: WebSocket, request: any, client: any) => {
 
-    trace(`connection from client ${JSON.stringify(client)}`);
     const path = new URL(request.url, "http://localhost");
+
     let awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID;
     let awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
     let awsSessionToken = process.env.AWS_SESSION_TOKEN;
+
     if (process.env.TRANSCRIBESTREAM_CLIENT_ROLEARN) {
         const assumeRoleResult = await IamService.assumeTranscribeStreamClientRole(process.env.TRANSCRIBESTREAM_CLIENT_ROLEARN);
         awsAccessKeyId = assumeRoleResult.Credentials?.AccessKeyId;
         awsSecretAccessKey = assumeRoleResult.Credentials?.SecretAccessKey;
         awsSessionToken = assumeRoleResult.Credentials?.SessionToken;
     }
+
     const languageCode = path.searchParams.get("language") || "en-US";
     const region = path.searchParams.get("region") || process.env.AWS_DEFAULT_REGION;
     const sampleRate = path.searchParams.get("sampleRate") || "44100";
@@ -71,11 +77,25 @@ wss.on("connection", async (inputWebSocket: WebSocket, request: any, client: any
         inputWebSocket.close();
     }
 });
-server.on("upgrade", (request, socket, head): void => {
+
+wssForMonitor.on("connection", async (inputWebSocket: WebSocket, request: any, client: any) => {
+    trace(`received connection request for url ${JSON.stringify(request.url)}`);
+});
+
+server.on("upgrade", (request: IncomingMessage, socket: Duplex, head: Buffer): void => {
     trace(`received upgrade request for url ${JSON.stringify(request.url)}`);
-    wss.handleUpgrade(request, socket, head, (ws) => {
-        wss.emit("connection", ws, request);
-    });
+    const path = new URL(request?.url || "", "http://localhost");
+    if (path.pathname === "transcribe") {
+        wssForAudio.handleUpgrade(request, socket, head, (ws) => {
+            wssForAudio.emit("connection", ws, request);
+        });
+    } else if (path.pathname === "connect") {
+        wssForMonitor.handleUpgrade(request, socket, head, (ws) => {
+            wssForMonitor.emit("connection", ws, request);
+        });
+    } else {
+        socket.destroy();
+    }
 });
 
 trace(`starting listener on port ${process.env.PORT}`);
