@@ -83,6 +83,7 @@ export class IacStack extends Stack {
         streamingServerProps.targetVpc = vpc;
         streamingServerProps.targetAvailabilityZones = Stack.of(this).availabilityZones;
         streamingServerProps.transcriptsTableArn = storageStack.transcriptTable.tableArn;
+        streamingServerProps.transcriptsTableV2Arn = storageStack.transcriptTableV2.tableArn;
         streamingServerProps.inputTopic = pipelineStack.topic;
 
         // eslint-disable-next-line no-unused-vars
@@ -92,6 +93,7 @@ export class IacStack extends Stack {
             ...props,
             ...{
                 transcriptTableArn: storageStack.transcriptTable.tableArn,
+                transcriptTableV2Arn: storageStack.transcriptTableV2.tableArn,
                 functionsImageRepositoryArn: process.env.AWSCDK_ECR_FUNCTIONS_REPOSITORYARN || "",
                 transcriptionMessagesQueue: streamingServerStack.outputQueue,
                 destinationTopic: pipelineStack.topic,

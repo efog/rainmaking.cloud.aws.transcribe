@@ -44,7 +44,7 @@
         },
         {
           "name": "DYNAMODB_TRANSCRIPTS_TABLENAME",
-          "value": "StreamingServerStackstorageStackDFFA7069-transcriptsTable4193A6F3-SPOKFU4UUBQO"
+          "value": "StreamingServerStackstorageStackDFFA7069-transcriptsTableV2F59414E5-1KLU6FEM2FA82"
         }
       ],
       "resourceRequirements": null,

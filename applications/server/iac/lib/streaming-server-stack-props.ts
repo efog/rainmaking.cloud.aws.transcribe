@@ -32,4 +32,5 @@ export class StreamingServerStackProps implements StackProps {
     streamingServerProductionListenerProtocol: ApplicationProtocol;
     streamingServerTestListenerProtocol: ApplicationProtocol;
     inputTopic: ITopic;
+    transcriptsTableV2Arn: string;
 }

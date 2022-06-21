@@ -19,6 +19,7 @@ export class StorageStack extends Stack {
     private props: StorageStackProps | undefined;
 
     public transcriptTable: Table;
+    transcriptTableV2: Table;
 
     /**
      * Default constructor
@@ -55,5 +56,25 @@ export class StorageStack extends Stack {
             },
         });
         this.transcriptTable = transcriptsTable;
+
+        const transcriptsTableV2 = new Table(this, "transcriptsTableV2", {
+            billingMode: BillingMode.PAY_PER_REQUEST,
+            partitionKey: {
+                name: "callId",
+                type: AttributeType.STRING,
+            },
+            sortKey: {
+                name: "eventTimestamp",
+                type: AttributeType.STRING,
+            },
+        });
+        transcriptsTableV2.addLocalSecondaryIndex({
+            indexName: "resultId",
+            sortKey: {
+                name: "resultId",
+                type: AttributeType.STRING,
+            },
+        });
+        this.transcriptTableV2 = transcriptsTableV2;
     }
 }

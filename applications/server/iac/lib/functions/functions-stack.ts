@@ -20,6 +20,7 @@ export class FunctionsStackProps implements StackProps {
     debugNames?: string = "-not_this";
     description?: string;
     transcriptTableArn: string;
+    transcriptTableV2Arn: string;
     env?: Environment;
     functionsImageRepositoryArn: string;
     functionsTargetImageTag?: string;
@@ -55,6 +56,7 @@ export class FunctionsStack extends Stack {
             outputTopicDestination = new SnsDestination(props?.destinationTopic);
         }
         const transcriptsTable = Table.fromTableArn(this, "transcriptsTable", props?.transcriptTableArn || "");
+        const transcriptsTableV2 = Table.fromTableArn(this, "transcriptsTableV2", props?.transcriptTableArn || "");
         const transcriptMessageEventFunction = new DockerImageFunction(this, "transcriptMessageEventFunction", ({
             ...props,
             ...{
@@ -71,7 +73,7 @@ export class FunctionsStack extends Stack {
                 environment: {
                     DEBUG: props?.debugNames || "*,-not_this",
                     FUNCTIONS_IMAGE_TAG: props?.functionsTargetImageTag || baseFunctionsImageTag,
-                    DYNAMODB_TRANSCRIPTS_TABLENAME: transcriptsTable.tableName,
+                    DYNAMODB_TRANSCRIPTS_TABLENAME: transcriptsTableV2.tableName,
                     SNS_OUTPUT_DESTINATION_TOPIC_NAME: props?.destinationTopic.topicName,
                 },
                 logRetention: RetentionDays.ONE_DAY,
@@ -103,5 +105,6 @@ export class FunctionsStack extends Stack {
         this.lambdaExecutionRole = transcriptMessageEventFunction.role;
         this.transcriptMessageEventFunction = transcriptMessageEventFunction;
         transcriptsTable.grantReadWriteData(this.lambdaExecutionRole);
+        transcriptsTableV2.grantReadWriteData(this.lambdaExecutionRole);
     }
 }
