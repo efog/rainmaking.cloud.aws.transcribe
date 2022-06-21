@@ -7,6 +7,7 @@ import * as marshaller from "@aws-sdk/eventstream-marshaller";
 import * as utilUtf8Node from "@aws-sdk/util-utf8-node";
 import styles from './Transcripter.module.css';
 import * as uuid from "uuid";
+import Conversation from "../conversation/Conversation";
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(utilUtf8Node.toUtf8, utilUtf8Node.fromUtf8);
 
@@ -209,6 +210,9 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
                                     }
                                 }}>Stop</button>
                             <label>{(this.props as TranscripterInternalProps).socketState}</label>
+                        </div>
+                        <div>
+                            <Conversation><div>Conversation be here...</div></Conversation>
                         </div>
                     </div>
                 </div>

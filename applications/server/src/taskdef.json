@@ -1,6 +1,6 @@
 {
   "ipcMode": null,
-  "executionRoleArn": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-streamingServerExecution-17EDDA5N2XLBJ",
+  "executionRoleArn": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-streamingServerExecution-4RL6ZCGSEUIT",
   "containerDefinitions": [
     {
       "dnsSearchDomains": [],
@@ -9,7 +9,7 @@
         "logDriver": "awslogs",
         "secretOptions": [],
         "options": {
-          "awslogs-group": "StreamingServerStack-streamingServerLogGroupBCB9F7E3-O6ePrdH4ORMu",
+          "awslogs-group": "StreamingServerStack-streamingServerLogGroupBCB9F7E3-siubYbD1ZLPw",
           "awslogs-region": "ca-central-1",
           "awslogs-stream-prefix": "streamingServer"
         }
@@ -36,11 +36,15 @@
         },
         {
           "name": "TRANSCRIBESTREAM_CLIENT_ROLEARN",
-          "value": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-transcribeClientRole786D-1Q14KX5P1TLCD"
+          "value": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-transcribeClientRole786D-L58IJOT5ME5Y"
         },
         {
           "name": "SQS_OUTPUT_QUEUE_URL",
-          "value": "https://sqs.ca-central-1.amazonaws.com/032791158701/StreamingServerStackstreamingServ-streamingServerOutputQueueE0F57B5-G6VDXhepQ3gF"
+          "value": "https://sqs.ca-central-1.amazonaws.com/032791158701/StreamingServerStackstreamingServ-streamingServerOutputQueueE0F57B5-YR7Hqswd5sSJ"
+        },
+        {
+          "name": "DYNAMODB_TRANSCRIPTS_TABLENAME",
+          "value": "StreamingServerStackstorageSTack17CDAB59-transcriptsTable4193A6F3-1GXC0NMVSPU5L"
         }
       ],
       "resourceRequirements": null,
@@ -85,12 +89,12 @@
   ],
   "placementConstraints": [],
   "memory": "512",
-  "taskRoleArn": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-streamingServerTaskRole5-1UKSXA8BVJWB3",
+  "taskRoleArn": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-streamingServerTaskRole5-45DD7TUIHU51",
   "compatibilities": [
     "EC2",
     "FARGATE"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:ca-central-1:032791158701:task-definition/StreamingServerStackstreamingServerapplicationTaskDefinitionFE38D0C2:2",
+  "taskDefinitionArn": "arn:aws:ecs:ca-central-1:032791158701:task-definition/StreamingServerStackstreamingServerapplicationTaskDefinitionFE38D0C2:32",
   "family": "StreamingServerStackstreamingServerapplicationTaskDefinitionFE38D0C2",
   "requiresAttributes": [
     {
@@ -179,7 +183,7 @@
   "networkMode": "awsvpc",
   "runtimePlatform": null,
   "cpu": "256",
-  "revision": 2,
+  "revision": 32,
   "status": "ACTIVE",
   "inferenceAccelerators": null,
   "proxyConfiguration": null,

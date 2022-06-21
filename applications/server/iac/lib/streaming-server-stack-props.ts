@@ -2,6 +2,7 @@ import { Environment, StackProps } from "aws-cdk-lib";
 import { IVpc } from "aws-cdk-lib/aws-ec2";
 import { ContainerDefinitionOptions, DeploymentController, DeploymentControllerType } from "aws-cdk-lib/aws-ecs";
 import { ApplicationProtocol } from "aws-cdk-lib/aws-elasticloadbalancingv2";
+import { ITopic } from "aws-cdk-lib/aws-sns";
 
 /**
  * Streaming server stack properties.
@@ -29,4 +30,5 @@ export class StreamingServerStackProps implements StackProps {
     streamingServerTestListenerPort: number;
     streamingServerProductionListenerProtocol: ApplicationProtocol;
     streamingServerTestListenerProtocol: ApplicationProtocol;
+    inputTopic: ITopic;
 }

@@ -10,6 +10,7 @@ import { Construct } from "constructs";
 import { CiStack } from "./ci/ci-stack";
 import { CiStackProps } from "./ci/ci-stack-props";
 import { FunctionsStack } from "./functions/functions-stack";
+import { PipelineStack } from "./pipeline/pipeline-stack";
 import { StorageStack } from "./storage/storage-stack";
 import { StreamingServerStack } from "./streaming-server-stack";
 import { StreamingServerStackProps } from "./streaming-server-stack-props";
@@ -26,6 +27,8 @@ export class IacStack extends Stack {
             vpcId: process.env.AWSCDK_BASE_VPCID || "",
             isDefault: false,
         });
+
+        const pipelineStack = new PipelineStack(this, "pipelineStack", Object.assign(props, {}));
 
         const repository = Repository.fromRepositoryName(this, "streamingServerContainerRepository", process.env.AWSCDK_ECS_STREAMINGSERVER_CONTAINER_REPOSITORY_NAME || "");
         const image = ContainerImage.fromEcrRepository(repository, "latest");
@@ -77,6 +80,7 @@ export class IacStack extends Stack {
         streamingServerProps.targetClusterName = process.env.AWSCDK_ECS_CLUSTER_NAME || "";
         streamingServerProps.targetVpc = vpc;
         streamingServerProps.targetAvailabilityZones = Stack.of(this).availabilityZones;
+        streamingServerProps.inputTopic = pipelineStack.topic;
 
         // eslint-disable-next-line no-unused-vars
         const streamingServerStack = new StreamingServerStack(this, "streamingServer", streamingServerProps);
@@ -85,9 +89,10 @@ export class IacStack extends Stack {
         const functionsStack = new FunctionsStack(this, "functionsStack", {
             ...props,
             ...{
-                transcriptTable: storageStack.transcriptTable,
+                transcriptTableArn: storageStack.transcriptTable.tableArn,
                 functionsImageRepositoryArn: process.env.AWSCDK_ECR_FUNCTIONS_REPOSITORYARN || "",
                 transcriptionMessagesQueue: streamingServerStack.outputQueue,
+                destinationTopic: pipelineStack.topic,
             },
         });
 
@@ -98,7 +103,7 @@ export class IacStack extends Stack {
             functionsImageRepositoryArn: process.env.AWSCDK_ECR_FUNCTIONS_REPOSITORYARN || "",
             pipelineBucketArn: process.env.AWSCDK_CODEPIPELINE_SOURCE_BUCKET_ARN || "",
             streamingServerImageRepositoryArn: process.env.AWSCDK_ECR_SERVERIMAGE_REPOSITORYARN || "",
-            trancriptionMessagesHandlerFunction: functionsStack.transcriptMessageEventFunction,
+            trancriptionMessagesHandlerFunctionArn: functionsStack.transcriptMessageEventFunction.functionArn,
         }) as CiStackProps;
         const ciStack = new CiStack(this, "ciStack", ciStackProps);
     }

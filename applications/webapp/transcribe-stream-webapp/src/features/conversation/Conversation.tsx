@@ -16,7 +16,8 @@ class ConversationClient {
         this.emitter = new EventEmitter();
         
         webSocket.onmessage = (ev: MessageEvent) => {
-            this.emitter.emit("message", ev);
+            console.log(JSON.stringify(ev.data));
+            this.emitter.emit("message", JSON.parse(ev.data));
         }
         webSocket.onclose = (ev: CloseEvent) => {
             this.emitter.emit("close");
@@ -52,6 +53,9 @@ class Conversation extends Component<ConversationProps> {
 
     componentDidMount() {
         this.websocketClient = ConversationClient.connect(this.webSocketHost, this.webSocketPort);
+        this.websocketClient.onmessage((data: any) => {
+            console.log(`received event from backend ${JSON.stringify(data)}`);
+        });
     }
 
     static mapStateToProps(state: any) {

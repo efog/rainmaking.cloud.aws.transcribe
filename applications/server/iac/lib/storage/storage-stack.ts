@@ -47,6 +47,13 @@ export class StorageStack extends Stack {
                 type: AttributeType.STRING,
             },
         });
+        transcriptsTable.addLocalSecondaryIndex({
+            indexName: "eventTimestamp",
+            sortKey: {
+                name: "eventTimestamp",
+                type: AttributeType.STRING,
+            },
+        });
         this.transcriptTable = transcriptsTable;
     }
 }

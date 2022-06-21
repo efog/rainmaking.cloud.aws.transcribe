@@ -10,7 +10,7 @@ export class CiStackProps implements StackProps {
     functionsImageRepositoryArn: string;
     pipelineBucketArn: string;
     streamingServerImageRepositoryArn: string;
-    trancriptionMessagesHandlerFunction: IFunction;
+    trancriptionMessagesHandlerFunctionArn: string;
     tags?: {
         [key: string]: string;
     };

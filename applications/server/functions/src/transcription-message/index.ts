@@ -31,7 +31,7 @@ export type TranscribeMessageEvent = {
     }],
     callId: string,
     speakerName: string,
-    timestamp: string,
+    eventTimestamp: string,
 }
 
 /**
@@ -52,7 +52,7 @@ export async function handleMessageEvent(event: SQSEvent): Promise<APIGatewayPro
         const resultId = message.Results[0].ResultId;
         const speakerName = message.speakerName;
         const startTime = message.Results[0].StartTime;
-        const timestamp = message.timestamp;
+        const eventTimestamp = message.eventTimestamp;
         const transcript = message.Results[0].Alternatives[0].Transcript;
         const record = {
             callId: {
@@ -73,8 +73,8 @@ export async function handleMessageEvent(event: SQSEvent): Promise<APIGatewayPro
             transcript: {
                 S: transcript
             },
-            timestamp: {
-                S: timestamp
+            eventTimestamp: {
+                S: eventTimestamp
             }
         };
         trace(`saving ${JSON.stringify(record)}`);
@@ -90,6 +90,7 @@ export async function handleMessageEvent(event: SQSEvent): Promise<APIGatewayPro
         };
     }
     return {
-        statusCode: 200
+        statusCode: 202,
+        body: JSON.stringify(messages)
     };
 }

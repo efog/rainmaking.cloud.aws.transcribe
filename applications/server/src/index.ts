@@ -8,6 +8,8 @@ import express, { Request, Response } from "express";
 import { IamService } from "./services/iam-service";
 import { SQSService } from "./services/sqs-service";
 import { Duplex } from "stream";
+import { v4 as uuidv4 } from "uuid";
+import { TranscriptPollEvent, TranscriptsPoller } from "./services/transcripts-poller";
 
 const app = express();
 const debug = Debug("DEBUG::SERVER::index.ts");
@@ -32,27 +34,22 @@ server.on("request", app.get("/api/stt/healthcheck", (request: Request, response
 }));
 
 wssForAudio.on("connection", async (inputWebSocket: WebSocket, request: any, client: any) => {
-
     const path = new URL(request.url, "http://localhost");
-
     let awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID;
     let awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
     let awsSessionToken = process.env.AWS_SESSION_TOKEN;
-
     if (process.env.TRANSCRIBESTREAM_CLIENT_ROLEARN) {
         const assumeRoleResult = await IamService.assumeTranscribeStreamClientRole(process.env.TRANSCRIBESTREAM_CLIENT_ROLEARN);
         awsAccessKeyId = assumeRoleResult.Credentials?.AccessKeyId;
         awsSecretAccessKey = assumeRoleResult.Credentials?.SecretAccessKey;
         awsSessionToken = assumeRoleResult.Credentials?.SessionToken;
     }
-
     const languageCode = path.searchParams.get("language") || "en-US";
     const region = path.searchParams.get("region") || process.env.AWS_DEFAULT_REGION;
     const sampleRate = path.searchParams.get("sampleRate") || "44100";
-    const speakerName = path.searchParams.get("username") || null;
-    const callId = path.searchParams.get("callId") || null;
+    const speakerName = path.searchParams.get("username") || "somebody";
+    const callId = path.searchParams.get("callId") || "abcde1234";
     const settings = { awsAccessKeyId, awsSecretAccessKey, awsSessionToken, inputWebSocket, languageCode, region, sampleRate, speakerName } as TranscribeStreamingJobServiceSettings;
-
     trace(`connection opened for path ${path}`);
     try {
         const service = TranscribeStreamingJobService.transcribeStream(settings);
@@ -66,9 +63,9 @@ wssForAudio.on("connection", async (inputWebSocket: WebSocket, request: any, cli
         });
         service.onmessage(async (evt: TranscribeMessageEvent) => {
             trace(`${JSON.stringify(evt)}`);
-            const timestamp = DateTime.utc().toISO();
+            const eventTimestamp = DateTime.utc().toISO();
             if (evt.Transcript.Results.length > 0 && !evt.Transcript.Results[0].IsPartial) {
-                const payload = Object.assign(evt.Transcript, { speakerName, callId, timestamp });
+                const payload = Object.assign(evt.Transcript, { speakerName, callId, eventTimestamp });
                 await sqsService.sendMessage(payload, queueUrl);
             }
         });
@@ -78,18 +75,45 @@ wssForAudio.on("connection", async (inputWebSocket: WebSocket, request: any, cli
     }
 });
 
+const listeners: {[key: string]: WebSocket} = {};
 wssForMonitor.on("connection", async (inputWebSocket: WebSocket, request: any, client: any) => {
     trace(`received connection request for url ${JSON.stringify(request.url)}`);
+    const path = new URL(request.url, "http://localhost");
+    const callId = path.searchParams.get("callId") || "abcde1234";
+    const callerId = uuidv4();
+    const poller = TranscriptsPoller.getPollerForCall(callId, 10);
+    inputWebSocket.on("close", (evt: CloseEvent) => {
+        delete listeners[callerId];
+        poller.stop();
+    });
+    inputWebSocket.on("message", (evt: MessageEvent) => {
+    });
+    inputWebSocket.send(JSON.stringify(
+        {
+            type: "callerid",
+            value: callerId
+        }
+    ));
+    poller.onpoll((evt: TranscriptPollEvent) => {
+        inputWebSocket.send(
+            JSON.stringify({
+                type: "transcripts",
+                value: evt
+            })
+        );
+    });
 });
 
 server.on("upgrade", (request: IncomingMessage, socket: Duplex, head: Buffer): void => {
-    trace(`received upgrade request for url ${JSON.stringify(request.url)}`);
     const path = new URL(request?.url || "", "http://localhost");
-    if (path.pathname === "transcribe") {
+    const callId = path.searchParams.get("callId") || "abcde1234";
+    trace(`upgrade requested for url ${JSON.stringify(request.url)}`);
+    trace(`upgrade requested for path ${path.pathname}`);
+    if (path.pathname === "/api/stt/transcribe") {
         wssForAudio.handleUpgrade(request, socket, head, (ws) => {
             wssForAudio.emit("connection", ws, request);
         });
-    } else if (path.pathname === "connect") {
+    } else if (path.pathname === "/api/stt/connect") {
         wssForMonitor.handleUpgrade(request, socket, head, (ws) => {
             wssForMonitor.emit("connection", ws, request);
         });

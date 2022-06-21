@@ -1,5 +1,6 @@
 import { Repository as CodeRepository } from "aws-cdk-lib/aws-codecommit";
 import { Construct } from "constructs";
+import { Function } from "aws-cdk-lib/aws-lambda";
 import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
 import { Repository as ContainerImageRepository } from "aws-cdk-lib/aws-ecr";
 import {
@@ -92,7 +93,7 @@ export class CiStack extends Stack {
             }));
             pipelineBucket.grantReadWrite(streamingServerBuilderDevelopBuildProject.role);
         }
-
+        const trancriptionMessagesHandlerFunction = Function.fromFunctionArn(this, "trancriptionMessagesHandlerFunction", props.trancriptionMessagesHandlerFunctionArn);
         const functionsBuilderDevelopBuildProject = new Project(this, "functionsBuilderDevelopBuildProject", {
             source: developSource,
             projectName: `${props?.applicationName}_functions_develop_build`,
@@ -115,7 +116,7 @@ export class CiStack extends Stack {
                     value: region,
                 },
                 FUNCTIONS_TRANSCRIPTIONMSGS_EVENTHANDLER_NAME: {
-                    value: props.trancriptionMessagesHandlerFunction.functionName,
+                    value: trancriptionMessagesHandlerFunction.functionName,
                 },
             },
             environment: {
@@ -137,23 +138,6 @@ export class CiStack extends Stack {
             functionsImageRepository.grantPullPush(functionsBuilderDevelopBuildProject.role);
             buildArtifactsBucket.grantReadWrite(functionsBuilderDevelopBuildProject.role);
             pipelineBucket.grantReadWrite(functionsBuilderDevelopBuildProject.role);
-            props.trancriptionMessagesHandlerFunction.role?.attachInlinePolicy(
-                new Policy(this, "uselessPolicySinceICantDeleteThisAnymore", {
-                    document: new PolicyDocument({
-                        statements: [
-                            new PolicyStatement({
-                                effect: Effect.ALLOW,
-                                actions: [
-                                    "Lambda:Invoke",
-                                ],
-                                resources: [
-                                    props.trancriptionMessagesHandlerFunction.functionArn,
-                                ],
-                            }),
-                        ],
-                    }),
-                }),
-            );
             functionsBuilderDevelopBuildProject.role.attachInlinePolicy(
                 new Policy(this, "functionsBuilderDevelopBuildProjectRoleGrantUpdateFunctionCode", {
                     document: new PolicyDocument({
@@ -167,7 +151,7 @@ export class CiStack extends Stack {
                                     "Lambda:GetAlias",
                                 ],
                                 resources: [
-                                    props.trancriptionMessagesHandlerFunction.functionArn,
+                                    trancriptionMessagesHandlerFunction.functionArn,
                                 ],
                             }),
                         ],
