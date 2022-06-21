@@ -94,7 +94,7 @@
     "EC2",
     "FARGATE"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:ca-central-1:032791158701:task-definition/StreamingServerStackstreamingServerapplicationTaskDefinitionFE38D0C2:32",
+  "taskDefinitionArn": "arn:aws:ecs:ca-central-1:032791158701:task-definition/StreamingServerStackstreamingServerapplicationTaskDefinitionFE38D0C2:33",
   "family": "StreamingServerStackstreamingServerapplicationTaskDefinitionFE38D0C2",
   "requiresAttributes": [
     {
