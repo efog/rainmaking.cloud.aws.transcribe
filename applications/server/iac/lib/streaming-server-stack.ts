@@ -4,6 +4,7 @@ import {
     CfnOutput,
     Duration, Stack,
 } from "aws-cdk-lib";
+import { Table } from "aws-cdk-lib/aws-dynamodb";
 import {
     ISecurityGroup,
     IVpc, Port, SecurityGroup, SubnetType,
@@ -98,6 +99,7 @@ export class StreamingServerStack extends Stack {
             protocol: this.props?.streamingServerProductionListenerProtocol || ApplicationProtocol.HTTP,
         });
         const repository = Repository.fromRepositoryArn(this, "streamingServerImageRepository", this.props?.repositoryArn || "");
+        const transcriptsTable = Table.fromTableArn(this, "transcriptsTable", this.props?.transcriptsTableArn || "");
 
         // Setup roles
         this.executionRole = new Role(this, "streamingServerExecutionRole", {
@@ -276,5 +278,6 @@ export class StreamingServerStack extends Stack {
             value: targetQueue.queueArn,
         });
         this.outputQueue = targetQueue;
+        transcriptsTable.grantReadWriteData(this.taskRole);
     }
 }

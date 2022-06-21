@@ -63,6 +63,8 @@ export class IacStack extends Stack {
             }),
         } as ContainerDefinitionOptions;
 
+        const storageStack = new StorageStack(this, "storageStack", { ...props });
+
         const streamingServerProps = Object.assign(props, {}) as StreamingServerStackProps;
         streamingServerProps.repositoryArn = process.env.AWSCDK_ECR_SERVERIMAGE_REPOSITORYARN || "";
         streamingServerProps.streamingServerAssignPublicIp = true;
@@ -80,12 +82,12 @@ export class IacStack extends Stack {
         streamingServerProps.targetClusterName = process.env.AWSCDK_ECS_CLUSTER_NAME || "";
         streamingServerProps.targetVpc = vpc;
         streamingServerProps.targetAvailabilityZones = Stack.of(this).availabilityZones;
+        streamingServerProps.transcriptsTableArn = storageStack.transcriptTable.tableArn;
         streamingServerProps.inputTopic = pipelineStack.topic;
 
         // eslint-disable-next-line no-unused-vars
         const streamingServerStack = new StreamingServerStack(this, "streamingServer", streamingServerProps);
 
-        const storageStack = new StorageStack(this, "storageSTack", { ...props });
         const functionsStack = new FunctionsStack(this, "functionsStack", {
             ...props,
             ...{

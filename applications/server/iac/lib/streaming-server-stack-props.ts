@@ -26,6 +26,7 @@ export class StreamingServerStackProps implements StackProps {
     targetAvailabilityZones: string[];
     targetClusterName: string;
     targetVpc: IVpc;
+    transcriptsTableArn: string;
     streamingServerProductionListenerPort: number;
     streamingServerTestListenerPort: number;
     streamingServerProductionListenerProtocol: ApplicationProtocol;
