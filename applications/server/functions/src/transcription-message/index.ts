@@ -75,9 +75,6 @@ export async function handleMessageEvent(event: SQSEvent): Promise<APIGatewayPro
             },
             eventTimestamp: {
                 S: eventTimestamp
-            },
-            timestamp: {
-                S: eventTimestamp
             }
         };
         trace(`saving ${JSON.stringify(record)}`);

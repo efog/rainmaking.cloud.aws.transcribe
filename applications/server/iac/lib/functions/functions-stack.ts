@@ -69,7 +69,7 @@ export class FunctionsStack extends Stack {
                     description: `uses image tag ${props?.functionsTargetImageTag || baseFunctionsImageTag}`,
                     removalPolicy: RemovalPolicy.RETAIN,
                 },
-                description: "Transcripts Message Queue Handler",
+                description: "Transcripts Message Queue Handler V2",
                 environment: {
                     DEBUG: props?.debugNames || "*,-not_this",
                     FUNCTIONS_IMAGE_TAG: props?.functionsTargetImageTag || baseFunctionsImageTag,
