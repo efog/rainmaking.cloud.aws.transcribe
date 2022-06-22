@@ -50,6 +50,12 @@ wssForAudio.on("connection", async (inputWebSocket: WebSocket, request: any, cli
     const speakerName = path.searchParams.get("username") || "somebody";
     const callId = path.searchParams.get("callId") || "abcde1234";
     const settings = { awsAccessKeyId, awsSecretAccessKey, awsSessionToken, inputWebSocket, languageCode, region, sampleRate, speakerName } as TranscribeStreamingJobServiceSettings;
+
+    const connectionTimeout = setTimeout(() => {
+        clearTimeout(connectionTimeout);
+        inputWebSocket.close();
+    }, 30 * 1000);
+
     trace(`connection opened for path ${path}`);
     try {
         const service = TranscribeStreamingJobService.transcribeStream(settings);
@@ -57,6 +63,9 @@ wssForAudio.on("connection", async (inputWebSocket: WebSocket, request: any, cli
         const queueUrl = process.env.SQS_OUTPUT_QUEUE_URL || "";
         inputWebSocket.on("close", (ev: Event) => {
             trace(`connection closed for ${path}`);
+            if (connectionTimeout.hasRef()) {
+                clearTimeout(connectionTimeout);
+            }
         });
         service.onerror((err: ErrorMessageEvent) => {
             error(JSON.stringify(err));
@@ -75,7 +84,7 @@ wssForAudio.on("connection", async (inputWebSocket: WebSocket, request: any, cli
     }
 });
 
-const listeners: {[key: string]: WebSocket} = {};
+const listeners: { [key: string]: WebSocket } = {};
 wssForMonitor.on("connection", async (inputWebSocket: WebSocket, request: any, client: any) => {
     trace(`received connection request for url ${JSON.stringify(request.url)}`);
     const path = new URL(request.url, "http://localhost");

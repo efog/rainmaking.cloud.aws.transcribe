@@ -2,12 +2,14 @@ import EventEmitter from "events";
 import { Component } from "react";
 import { connect } from "react-redux";
 import { setCallId, setCallerId } from "../transcripter/transcripter-slice";
+import { setMessages } from "./conversation-slice";
 
 export type ConversationProps = {
     children: JSX.Element;
     setCallId?: Function;
     setCallerId?: Function;
-    transcripts?: Transcript[];
+    setMessages?: Function;
+    messages?: Transcript[];
 }
 
 export type Transcript = {
@@ -92,6 +94,9 @@ class Conversation extends Component<ConversationProps> {
                     }
                     break;
                 case ConversationEventMessageType.TRANSCRIPTS:
+                    if(this.props.setMessages) {
+                        this.props.setMessages(data.value as Transcript[]);
+                    }
                     break;
                 default:
                     break;
@@ -100,21 +105,25 @@ class Conversation extends Component<ConversationProps> {
     }
 
     static mapStateToProps(state: any) {
-        return { ...state.conversation };
+        const stateProps = { ...state.conversation, ...state.transcripter };
+        console.log(`${JSON.stringify(stateProps)}`);
+        return stateProps;
     }
 
     static mapDispatchToProps(dispatch: any) {
         return {
             setCallId: (sessionId: string) => { dispatch(setCallId(sessionId)) },
             setCallerId: (speakerName: string) => { dispatch(setCallerId(speakerName)) },
+            setMessages: (messages: Transcript[]) => { dispatch(setMessages(messages)) },
         };
     }
 
     render() {
         const props = this.props as ConversationProps;
-        const messages = this.props.transcripts ? this.props.transcripts.map((transcript: Transcript) => {
-            return <div key={transcript.eventTimestamp}>{transcript.transcript}</div>;
-        }) : []
+        console.log(`${JSON.stringify(props.messages)}`);
+        const messages = props.messages ? props?.messages.map((message: Transcript) => {
+            return <div key={message.eventTimestamp}>{message.transcript}</div>;
+        }) : <div>No new messages for the past 2 minutes...</div>;
         return <div>
             {props.children}
             {messages}
