@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import EventEmitter from "events";
 import { Component } from "react";
 import { connect } from "react-redux";
@@ -94,7 +95,7 @@ class Conversation extends Component<ConversationProps> {
                     }
                     break;
                 case ConversationEventMessageType.TRANSCRIPTS:
-                    if(this.props.setMessages) {
+                    if (this.props.setMessages) {
                         this.props.setMessages(data.value as Transcript[]);
                     }
                     break;
@@ -121,12 +122,19 @@ class Conversation extends Component<ConversationProps> {
     render() {
         const props = this.props as ConversationProps;
         console.log(`${JSON.stringify(props.messages)}`);
-        const messages = props.messages ? props?.messages.map((message: Transcript) => {
-            return <div key={message.eventTimestamp}>{message.transcript}</div>;
-        }) : <div>No new messages for the past 2 minutes...</div>;
+        const messages = props.messages && props.messages?.length > 0 ? props?.messages.map((message: Transcript) => {
+            const timestamp = DateTime.fromISO(message?.eventTimestamp || "").toRelative();
+            return <li key={message.eventTimestamp}>
+                <span>
+                   {`${timestamp}: ${message.transcript}`}
+                </span>
+            </li>;
+        }) : <li>No new messages for the past 2 minutes...</li>;
         return <div>
             {props.children}
-            {messages}
+            <ul>
+                {messages}
+            </ul>
         </div>;
     }
 }

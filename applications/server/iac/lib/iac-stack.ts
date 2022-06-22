@@ -108,6 +108,7 @@ export class IacStack extends Stack {
             pipelineBucketArn: process.env.AWSCDK_CODEPIPELINE_SOURCE_BUCKET_ARN || "",
             streamingServerImageRepositoryArn: process.env.AWSCDK_ECR_SERVERIMAGE_REPOSITORYARN || "",
             trancriptionMessagesHandlerFunctionArn: functionsStack.transcriptMessageEventFunction.functionArn,
+            streamingServerTaskDefinitionArn: streamingServerStack.streamingServerTaskDefinition.taskDefinitionArn,
         }) as CiStackProps;
         const ciStack = new CiStack(this, "ciStack", ciStackProps);
     }

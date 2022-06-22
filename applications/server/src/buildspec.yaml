@@ -23,9 +23,13 @@ phases:
             - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
             - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$BUILD_TAG
             - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_BUILD_NUMBER
+            - cd src
+            - TASK_ARN=$(aws ecs register-task-definition --family $ECS_TASKDEF_FAMILY --cli-input-json file://taskdef.json | jq -r ".taskDefinition.taskDefinitionArn")
+            - ./makeappspec.js _appspec.json $TASK_ARN > appspec.json
 artifacts:
     files:
         - 'appspec.yaml'
+        - 'appspec.json'
         - 'buildspec.yaml'
         - 'taskdef.json'
     base-directory: applications/server/src

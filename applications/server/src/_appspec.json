@@ -1,0 +1,29 @@
+{
+    "version": 0,
+    "Resources": [
+        {
+            "TargetService": {
+                "Type": "AWS::ECS::Service",
+                "Properties": {
+                    "TaskDefinition": "arn:aws:ecs:ca-central-1:032791158701:task-definition/StreamingServerStackstreamingServerapplicationTaskDefinitionFE38D0C2:38",
+                    "LoadBalancerInfo": {
+                        "ContainerName": "streamingServer",
+                        "ContainerPort": 3000
+                    },
+                    "CapacityProviderStrategy": [
+                        {
+                            "Base": 1,
+                            "CapacityProvider": "FARGATE_SPOT",
+                            "Weight": 4
+                        },
+                        {
+                            "Base": 0,
+                            "CapacityProvider": "FARGATE",
+                            "Weight": 1
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

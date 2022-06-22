@@ -61,6 +61,9 @@ export class CiStack extends Stack {
                 AWS_DEFAULT_REGION: {
                     value: region,
                 },
+                ECS_TASKDEF_FAMILY: {
+                    value: "StreamingServerStackstreamingServerapplicationTaskDefinitionFE38D0C2",
+                },
             },
             environment: {
                 buildImage: LinuxBuildImage.STANDARD_5_0,

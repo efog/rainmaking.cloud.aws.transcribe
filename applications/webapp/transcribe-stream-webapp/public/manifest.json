@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "STT Demo Application",
+  "name": "Amazon Transcribe Streaming Demo Application",
   "icons": [
     {
       "src": "favicon.ico",

@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { DateTime } from "luxon";
 import { Transcript } from "./Conversation";
 
 type ConversationState = {
@@ -14,7 +15,11 @@ export const conversationSlice = createSlice({
     initialState,
     reducers: {
         setMessages: (state: ConversationState, action: PayloadAction<Transcript[]>) => {
-            state.messages = action.payload;
+            state.messages = action.payload.sort((a: Transcript, b: Transcript) => {
+                const ta = DateTime.fromISO(a.eventTimestamp || "");
+                const tb = DateTime.fromISO(b.eventTimestamp || "");
+                return ta < tb ? 1 : -1;
+            });
         },
     }
 });

@@ -11,6 +11,7 @@ export class CiStackProps implements StackProps {
     pipelineBucketArn: string;
     streamingServerImageRepositoryArn: string;
     trancriptionMessagesHandlerFunctionArn: string;
+    streamingServerTaskDefinitionArn: string;
     tags?: {
         [key: string]: string;
     };

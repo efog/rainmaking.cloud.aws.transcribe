@@ -211,7 +211,7 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
                             <label>{(this.props as TranscripterInternalProps).socketState}</label>
                         </div>
                         <div>
-                            <Conversation><div>Conversation be here...</div></Conversation>
+                            <Conversation><h3>Latest Messages</h3></Conversation>
                         </div>
                     </div>
                 </div>

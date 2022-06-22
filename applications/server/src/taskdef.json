@@ -1,191 +1,86 @@
 {
-  "ipcMode": null,
-  "executionRoleArn": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-streamingServerExecution-4RL6ZCGSEUIT",
-  "containerDefinitions": [
-    {
-      "dnsSearchDomains": [],
-      "environmentFiles": [],
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "secretOptions": [],
-        "options": {
-          "awslogs-group": "StreamingServerStack-streamingServerLogGroupBCB9F7E3-siubYbD1ZLPw",
-          "awslogs-region": "ca-central-1",
-          "awslogs-stream-prefix": "streamingServer"
+    "executionRoleArn": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-streamingServerExecution-4RL6ZCGSEUIT",
+    "containerDefinitions": [
+        {
+            "dnsSearchDomains": [],
+            "environmentFiles": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "secretOptions": [],
+                "options": {
+                    "awslogs-group": "StreamingServerStack-streamingServerLogGroupBCB9F7E3-siubYbD1ZLPw",
+                    "awslogs-region": "ca-central-1",
+                    "awslogs-stream-prefix": "streamingServer"
+                }
+            },
+            "entryPoint": [],
+            "portMappings": [
+                {
+                    "hostPort": 3000,
+                    "protocol": "tcp",
+                    "containerPort": 3000
+                }
+            ],
+            "command": [],
+            "cpu": 256,
+            "environment": [
+                {
+                    "name": "DEBUG",
+                    "value": "*,-not_this"
+                },
+                {
+                    "name": "PORT",
+                    "value": "3000"
+                },
+                {
+                    "name": "TRANSCRIBESTREAM_CLIENT_ROLEARN",
+                    "value": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-transcribeClientRole786D-L58IJOT5ME5Y"
+                },
+                {
+                    "name": "SQS_OUTPUT_QUEUE_URL",
+                    "value": "https://sqs.ca-central-1.amazonaws.com/032791158701/StreamingServerStackstreamingServ-streamingServerOutputQueueE0F57B5-YR7Hqswd5sSJ"
+                },
+                {
+                    "name": "DYNAMODB_TRANSCRIPTS_TABLENAME",
+                    "value": "StreamingServerStackstorageStackDFFA7069-transcriptsTableV2F59414E5-1KLU6FEM2FA82"
+                }
+            ],
+            "ulimits": [],
+            "dnsServers": [],
+            "mountPoints": [],
+            "secrets": [],
+            "dockerSecurityOptions": [],
+            "memory": 512,
+            "memoryReservation": 512,
+            "volumesFrom": [],
+            "stopTimeout": 10,
+            "image": "032791158701.dkr.ecr.ca-central-1.amazonaws.com/rainmaking.cloud.sttstream.server:latest",
+            "startTimeout": 30,
+            "healthCheck": {
+                "retries": 3,
+                "command": [
+                    "CMD-SHELL",
+                    "touch ~ || exit 1"
+                ],
+                "timeout": 5,
+                "interval": 15,
+                "startPeriod": 120
+            },
+            "essential": true,
+            "links": [],
+            "extraHosts": [],
+            "dockerLabels": {},
+            "systemControls": [],
+            "privileged": false,
+            "name": "streamingServer"
         }
-      },
-      "entryPoint": [],
-      "portMappings": [
-        {
-          "hostPort": 3000,
-          "protocol": "tcp",
-          "containerPort": 3000
-        }
-      ],
-      "command": [],
-      "linuxParameters": null,
-      "cpu": 256,
-      "environment": [
-        {
-          "name": "DEBUG",
-          "value": "*,-not_this"
-        },
-        {
-          "name": "PORT",
-          "value": "3000"
-        },
-        {
-          "name": "TRANSCRIBESTREAM_CLIENT_ROLEARN",
-          "value": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-transcribeClientRole786D-L58IJOT5ME5Y"
-        },
-        {
-          "name": "SQS_OUTPUT_QUEUE_URL",
-          "value": "https://sqs.ca-central-1.amazonaws.com/032791158701/StreamingServerStackstreamingServ-streamingServerOutputQueueE0F57B5-YR7Hqswd5sSJ"
-        },
-        {
-          "name": "DYNAMODB_TRANSCRIPTS_TABLENAME",
-          "value": "StreamingServerStackstorageStackDFFA7069-transcriptsTableV2F59414E5-1KLU6FEM2FA82"
-        }
-      ],
-      "resourceRequirements": null,
-      "ulimits": [],
-      "dnsServers": [],
-      "mountPoints": [],
-      "workingDirectory": null,
-      "secrets": [],
-      "dockerSecurityOptions": [],
-      "memory": 512,
-      "memoryReservation": 512,
-      "volumesFrom": [],
-      "stopTimeout": 10,
-      "image": "032791158701.dkr.ecr.ca-central-1.amazonaws.com/rainmaking.cloud.sttstream.server:latest",
-      "startTimeout": 30,
-      "firelensConfiguration": null,
-      "dependsOn": null,
-      "disableNetworking": null,
-      "interactive": null,
-      "healthCheck": {
-        "retries": 3,
-        "command": [
-          "CMD-SHELL",
-          "touch ~ || exit 1"
-        ],
-        "timeout": 5,
-        "interval": 15,
-        "startPeriod": 120
-      },
-      "essential": true,
-      "links": [],
-      "hostname": null,
-      "extraHosts": [],
-      "pseudoTerminal": null,
-      "user": null,
-      "readonlyRootFilesystem": null,
-      "dockerLabels": {},
-      "systemControls": [],
-      "privileged": false,
-      "name": "streamingServer"
-    }
-  ],
-  "placementConstraints": [],
-  "memory": "512",
-  "taskRoleArn": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-streamingServerTaskRole5-45DD7TUIHU51",
-  "compatibilities": [
-    "EC2",
-    "FARGATE"
-  ],
-  "taskDefinitionArn": "arn:aws:ecs:ca-central-1:032791158701:task-definition/StreamingServerStackstreamingServerapplicationTaskDefinitionFE38D0C2:35",
-  "family": "StreamingServerStackstreamingServerapplicationTaskDefinitionFE38D0C2",
-  "requiresAttributes": [
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "ecs.capability.execution-role-awslogs"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.ecr-auth"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.17"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.21"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.task-iam-role"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "ecs.capability.container-health-check"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "ecs.capability.execution-role-ecr-pull"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "ecs.capability.task-eni"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "ecs.capability.container-ordering"
-    }
-  ],
-  "pidMode": null,
-  "requiresCompatibilities": [
-    "FARGATE"
-  ],
-  "networkMode": "awsvpc",
-  "runtimePlatform": null,
-  "cpu": "256",
-  "revision": 32,
-  "status": "ACTIVE",
-  "inferenceAccelerators": null,
-  "proxyConfiguration": null,
-  "volumes": []
+    ],
+    "taskRoleArn": "arn:aws:iam::032791158701:role/StreamingServerStackstrea-streamingServerTaskRole5-45DD7TUIHU51",
+    "family": "StreamingServerStackstreamingServerapplicationTaskDefinitionFE38D0C2",
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "networkMode": "awsvpc",
+    "memory": "512",
+    "cpu": "256"
 }
