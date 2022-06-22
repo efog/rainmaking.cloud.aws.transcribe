@@ -1,5 +1,5 @@
 import { Buffer } from "buffer";
-import { CONNECTED, CONNECTING, DISCONNECTED, LANGUAGES, REGIONS, setApiKey, setLanguage, setRegion, setSessionId, setSocketState, setSpeakerName } from "./transcripter-slice";
+import { CONNECTED, CONNECTING, DISCONNECTED, LANGUAGES, REGIONS, setApiKey, setLanguage, setRegion, setCallId, setSocketState, setCallerId } from "./transcripter-slice";
 import { Component } from "react";
 import { connect } from "react-redux";
 import { AudioRecorderWebSocketClient, connectRecorderSocket } from "./audio-recorder-websocket-client";
@@ -28,9 +28,9 @@ export interface TranscripterInternalProps {
     setApiKey: Function,
     setLanguage: Function,
     setRegion: Function,
-    setSessionId: Function,
+    setCallId: Function,
     setSocketState: Function,
-    setSpeakerName: Function,
+    setCallerId: Function,
     socketState: any,
     speakerName: string,
 }
@@ -63,9 +63,9 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
             setApiKey: (apiKey: string) => { dispatch(setApiKey(apiKey)) },
             setLanguage: (language: string) => { dispatch(setLanguage(language)) },
             setRegion: (region: string) => { dispatch(setRegion(region)) },
-            setSessionId: (sessionId: string) => { dispatch(setSessionId(sessionId)) },
+            setCallId: (sessionId: string) => { dispatch(setCallId(sessionId)) },
             setSocketState: (state: string) => { dispatch(setSocketState(state)) },
-            setSpeakerName: (speakerName: string) => { dispatch(setSpeakerName(speakerName)) },
+            setCallerId: (speakerName: string) => { dispatch(setCallerId(speakerName)) },
         };
     }
 
@@ -108,9 +108,9 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
     componentDidMount() {
     }
 
-    resetSessionId() {
+    resetCallId() {
         const sessionid = uuid.v4();
-        (this.props as TranscripterInternalProps).setSessionId(sessionid);
+        (this.props as TranscripterInternalProps).setCallId(sessionid);
     }
 
     render() {
@@ -124,15 +124,14 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
             <div className={styles.content}>
                 <div className={styles.sectionsmall}>
                     <div style={{ padding: "10px" }}>
-                        <h3>What is it?</h3>
+                        <h3>What is this demo?</h3>
                         <p>
-                            This app captures a user reading a small text out loud and compares the results of the speech to text processing with the
-                            expected outcome.
+                            This demonstration application captures a person's voice and uses Amazon Transcribe speech to text technology to transform the input 
+                            into a sequence of message.
                         </p>
                         <h3>How to use it?</h3>
                         <p>
-                            Enter a session id manually or use the reset button, select a language and a region. Upon the selection of a language
-                            a simple text will be displayed. Press the start button and start reading the text out loud.
+                            Select a language (french or english) and press the record button to start a recording. The recording maximum duration is 30 seconds.
                         </p>
                     </div>
                 </div>
@@ -148,15 +147,15 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
                             value={(this.props as TranscripterInternalProps).apiKey}>
                         </input>
                     </div> */}
-                        <div className={styles.inputRow}>
+                        {/* <div className={styles.inputRow}>
                             <label>Call Id</label>
                             <input type="text" id="sessionId" placeholder="session id"
                                 onChange={(evt) => {
-                                    (this.props as TranscripterInternalProps).setSessionId(evt.target.value);
+                                    (this.props as TranscripterInternalProps).setCallId(evt.target.value);
                                 }}
                                 value={(this.props as TranscripterInternalProps).sessionId}>
                             </input>
-                            <button disabled={(this.props as TranscripterInternalProps).socketState === CONNECTED} onClick={(evt) => { this.resetSessionId(); }}>reset</button>
+                            <button disabled={(this.props as TranscripterInternalProps).socketState === CONNECTED} onClick={(evt) => { this.resetCallId(); }}>reset</button>
                         </div>
                         <div className={styles.inputRow}>
                             <label>Speaker Name</label>
@@ -164,11 +163,11 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
                                 disabled={(this.props as TranscripterInternalProps).socketState === CONNECTED}
                                 type="text" id="speakerName" placeholder="speaker name"
                                 onChange={(evt) => {
-                                    (this.props as TranscripterInternalProps).setSpeakerName(evt.target.value);
+                                    (this.props as TranscripterInternalProps).setCallerId(evt.target.value);
                                 }}
                                 value={(this.props as TranscripterInternalProps).speakerName}>
                             </input>
-                        </div>
+                        </div> */}
                         <div className={styles.inputRow}>
                             <label>Language</label>
                             <select

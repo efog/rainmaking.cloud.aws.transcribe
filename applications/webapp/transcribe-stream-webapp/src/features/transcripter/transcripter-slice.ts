@@ -44,16 +44,16 @@ export const transcripterSlice = createSlice({
         setRegion: (state: TranscripterState, action: PayloadAction<string>) => {   
             state.region = action.payload;
         },
-        setSessionId: (state: TranscripterState, action: PayloadAction<string>) => {
+        setCallId: (state: TranscripterState, action: PayloadAction<string>) => {
             state.sessionId = action.payload;
         },
         setSocketState: (state: TranscripterState, action: PayloadAction<string>) => {
             state.socketState = action.payload;
         },
-        setSpeakerName: (state: TranscripterState, action: PayloadAction<string>) => {
+        setCallerId: (state: TranscripterState, action: PayloadAction<string>) => {
             state.speakerName = action.payload;
         }
     }
 });
-export const { setApiKey, setLanguage, setRegion, setSessionId, setSocketState, setSpeakerName } = transcripterSlice.actions;
+export const { setApiKey, setLanguage, setRegion, setCallId, setSocketState, setCallerId } = transcripterSlice.actions;
 export default transcripterSlice.reducer;

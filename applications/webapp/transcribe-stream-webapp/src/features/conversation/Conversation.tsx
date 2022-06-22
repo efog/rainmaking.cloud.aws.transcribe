@@ -1,9 +1,35 @@
 import EventEmitter from "events";
 import { Component } from "react";
 import { connect } from "react-redux";
+import { setCallId, setCallerId } from "../transcripter/transcripter-slice";
 
 export type ConversationProps = {
     children: JSX.Element;
+    setCallId?: Function;
+    setCallerId?: Function;
+    transcripts?: Transcript[];
+}
+
+export type Transcript = {
+    callId?: string,
+    callerId?: string,
+    eventTimestamp?: string,
+    endTime?: number,
+    resultId?: string,
+    speakerName?: string,
+    startTime?: number,
+    transcript?: string
+}
+
+export enum ConversationEventMessageType {
+    "CALL_ID" = "callId",
+    "CALLER_ID" = "callerId",
+    "TRANSCRIPTS" = "transcripts",
+}
+
+export type ConversationEventMessage = {
+    type: ConversationEventMessageType
+    value: string | Transcript[]
 }
 
 class ConversationClient {
@@ -14,9 +40,8 @@ class ConversationClient {
     private constructor(webSocket: WebSocket) {
         this.webSocket = webSocket;
         this.emitter = new EventEmitter();
-        
+
         webSocket.onmessage = (ev: MessageEvent) => {
-            console.log(JSON.stringify(ev.data));
             this.emitter.emit("message", JSON.parse(ev.data));
         }
         webSocket.onclose = (ev: CloseEvent) => {
@@ -26,7 +51,7 @@ class ConversationClient {
             this.emitter.emit("open");
         }
     }
-    
+
     onmessage(listener: (...args: any[]) => void): EventEmitter {
         return this.emitter.addListener("message", listener);
     }
@@ -53,24 +78,46 @@ class Conversation extends Component<ConversationProps> {
 
     componentDidMount() {
         this.websocketClient = ConversationClient.connect(this.webSocketHost, this.webSocketPort);
-        this.websocketClient.onmessage((data: any) => {
+        this.websocketClient.onmessage((data: ConversationEventMessage) => {
             console.log(`received event from backend ${JSON.stringify(data)}`);
+            switch (data.type) {
+                case ConversationEventMessageType.CALLER_ID:
+                    if (this.props.setCallerId) {
+                        this.props.setCallerId(data.value);
+                    }
+                    break;
+                case ConversationEventMessageType.CALL_ID:
+                    if (this.props.setCallId) {
+                        this.props.setCallId(data.value);
+                    }
+                    break;
+                case ConversationEventMessageType.TRANSCRIPTS:
+                    break;
+                default:
+                    break;
+            }
         });
     }
 
     static mapStateToProps(state: any) {
-        return { ...state.transcripter };
+        return { ...state.conversation };
     }
 
     static mapDispatchToProps(dispatch: any) {
         return {
+            setCallId: (sessionId: string) => { dispatch(setCallId(sessionId)) },
+            setCallerId: (speakerName: string) => { dispatch(setCallerId(speakerName)) },
         };
     }
 
     render() {
         const props = this.props as ConversationProps;
+        const messages = this.props.transcripts ? this.props.transcripts.map((transcript: Transcript) => {
+            return <div key={transcript.eventTimestamp}>{transcript.transcript}</div>;
+        }) : []
         return <div>
             {props.children}
+            {messages}
         </div>;
     }
 }

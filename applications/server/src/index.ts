@@ -86,12 +86,16 @@ wssForMonitor.on("connection", async (inputWebSocket: WebSocket, request: any, c
         delete listeners[callerId];
         poller.stop();
     });
-    inputWebSocket.on("message", (evt: MessageEvent) => {
-    });
     inputWebSocket.send(JSON.stringify(
         {
-            type: "callerid",
+            type: "callerId",
             value: callerId
+        }
+    ));
+    inputWebSocket.send(JSON.stringify(
+        {
+            type: "callId",
+            value: callId
         }
     ));
     poller.onpoll((evt: TranscriptPollEvent) => {
