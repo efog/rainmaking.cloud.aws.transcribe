@@ -56,7 +56,7 @@ export class FunctionsStack extends Stack {
             outputTopicDestination = new SnsDestination(props?.destinationTopic);
         }
         const transcriptsTable = Table.fromTableArn(this, "transcriptsTable", props?.transcriptTableArn || "");
-        const transcriptsTableV2 = Table.fromTableArn(this, "transcriptsTableV2", props?.transcriptTableArn || "");
+        const transcriptsTableV2 = Table.fromTableArn(this, "transcriptsTableV2", props?.transcriptTableV2Arn || "");
         const transcriptMessageEventFunction = new DockerImageFunction(this, "transcriptMessageEventFunction", ({
             ...props,
             ...{

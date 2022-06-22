@@ -14,6 +14,7 @@ const dynamoDBClient = new DynamoDBClient({
 });
 
 export async function readTranscriptsTable(callId: string, timestamp: DateTime): Promise<Array<Transcript> | undefined> {
+    trace(`querying transcripts table ${callId} ${timestamp} ${DateTime.utc().toISO()}`);
     const readItemsCommand = new QueryCommand({
         TableName: process.env.DYNAMODB_TRANSCRIPTS_TABLENAME || "",
         KeyConditionExpression: "callId = :callId AND eventTimestamp > :eventTimestamp",
@@ -26,19 +27,22 @@ export async function readTranscriptsTable(callId: string, timestamp: DateTime):
             }
         }
     });
+    trace(`querying using command ${JSON.stringify(readItemsCommand)}`);
     const readItemsOutput = await dynamoDBClient.send(readItemsCommand);
+    trace(`querying output ${JSON.stringify(readItemsOutput)}`);
     const values = readItemsOutput.Items?.map((item: Record<string, AttributeValue>): Transcript => {
         const value = {
-            callId: item.callId.S,
-            callerId: item.callerId.S,
-            endTime: item.endTime.N,
-            eventTimestamp: item.eventTimestamp.S,
-            resultId: item.resultId.S,
-            speakerName: item.speakerName.S,
-            startTime: item.startTime.N,
-            transcript: item.transcript.S
+            callId: item.callId && item.callId.S,
+            callerId: item.callerId && item.callerId.S,
+            endTime: item.endTime && item.endTime.N,
+            eventTimestamp: item.eventTimestamp && item.eventTimestamp.S,
+            resultId: item.resultId && item.resultId.S,
+            speakerName: item.speakerName && item.speakerName.S,
+            startTime: item.startTime && item.startTime.N,
+            transcript: item.transcript && item.transcript.S
         };
         return { ...value } as Transcript;
     });
+    trace(`returning values ${JSON.stringify(values)}`);
     return values;
 }

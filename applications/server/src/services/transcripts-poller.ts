@@ -31,7 +31,7 @@ export class TranscriptsPoller {
     }
     async getTranscripts(callId: string) {
         try {
-            const since = DateTime.utc().minus({ seconds: this.interval });
+            const since = DateTime.utc().minus({ seconds: 120 });
             const results = await readTranscriptsTable(callId, since);
             this.emitter.emit("poll", results);
         } catch (err: any) {
