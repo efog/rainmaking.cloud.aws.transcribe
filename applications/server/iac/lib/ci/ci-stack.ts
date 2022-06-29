@@ -157,6 +157,15 @@ export class CiStack extends Stack {
                                     trancriptionMessagesHandlerFunction.functionArn,
                                 ],
                             }),
+                            new PolicyStatement({
+                                effect: Effect.ALLOW,
+                                actions: [
+                                    "Iam:PassRole",
+                                ],
+                                resources: [
+                                    "*",
+                                ],
+                            }),
                         ],
                     }),
                 }),
