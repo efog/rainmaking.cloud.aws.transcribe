@@ -94,6 +94,15 @@ export class CiStack extends Stack {
                     "*",
                 ],
             }));
+            streamingServerBuilderDevelopBuildProject.role.addToPrincipalPolicy(new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "Iam:PassRole",
+                ],
+                resources: [
+                    "*",
+                ],
+            }));
             pipelineBucket.grantReadWrite(streamingServerBuilderDevelopBuildProject.role);
         }
         const trancriptionMessagesHandlerFunction = Function.fromFunctionArn(this, "trancriptionMessagesHandlerFunction", props.trancriptionMessagesHandlerFunctionArn);
@@ -155,15 +164,6 @@ export class CiStack extends Stack {
                                 ],
                                 resources: [
                                     trancriptionMessagesHandlerFunction.functionArn,
-                                ],
-                            }),
-                            new PolicyStatement({
-                                effect: Effect.ALLOW,
-                                actions: [
-                                    "Iam:PassRole",
-                                ],
-                                resources: [
-                                    "*",
                                 ],
                             }),
                         ],
