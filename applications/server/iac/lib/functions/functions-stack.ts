@@ -72,11 +72,11 @@ export class FunctionsStack extends Stack {
                     description: `uses image tag ${props?.functionsTargetImageTag || baseFunctionsImageTag}`,
                     removalPolicy: RemovalPolicy.RETAIN,
                 },
-                description: "Transcripts Message Queue Handler V3",
+                description: "Transcripts Message Queue Handler V2",
                 environment: {
                     DEBUG: props?.debugNames || "*,-not_this",
                     FUNCTIONS_IMAGE_TAG: props?.functionsTargetImageTag || baseFunctionsImageTag,
-                    DYNAMODB_TRANSCRIPTS_TABLENAME: transcriptsTableV3.tableName,
+                    DYNAMODB_TRANSCRIPTS_TABLENAME: transcriptsTableV2.tableName,
                     SNS_OUTPUT_DESTINATION_TOPIC_NAME: props?.destinationTopic.topicName,
                 },
                 logRetention: RetentionDays.ONE_DAY,
