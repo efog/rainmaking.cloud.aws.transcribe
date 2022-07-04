@@ -34,16 +34,19 @@ server.on("request", app.get("/api/stt/healthcheck", (request: Request, response
 }));
 
 wssForAudio.on("connection", async (inputWebSocket: WebSocket, request: any, client: any) => {
+
     const path = new URL(request.url, "http://localhost");
     let awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID;
     let awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
     let awsSessionToken = process.env.AWS_SESSION_TOKEN;
+
     if (process.env.TRANSCRIBESTREAM_CLIENT_ROLEARN) {
         const assumeRoleResult = await IamService.assumeTranscribeStreamClientRole(process.env.TRANSCRIBESTREAM_CLIENT_ROLEARN);
         awsAccessKeyId = assumeRoleResult.Credentials?.AccessKeyId;
         awsSecretAccessKey = assumeRoleResult.Credentials?.SecretAccessKey;
         awsSessionToken = assumeRoleResult.Credentials?.SessionToken;
     }
+
     const languageCode = path.searchParams.get("language") || "en-US";
     const region = path.searchParams.get("region") || process.env.AWS_DEFAULT_REGION;
     const sampleRate = path.searchParams.get("sampleRate") || "44100";
@@ -119,7 +122,7 @@ wssForMonitor.on("connection", async (inputWebSocket: WebSocket, request: any, c
 
 server.on("upgrade", (request: IncomingMessage, socket: Duplex, head: Buffer): void => {
     const path = new URL(request?.url || "", "http://localhost");
-    const callId = path.searchParams.get("callId") || "abcde1234";
+
     trace(`upgrade requested for url ${JSON.stringify(request.url)}`);
     trace(`upgrade requested for path ${path.pathname}`);
     if (path.pathname === "/api/stt/transcribe") {

@@ -94,6 +94,7 @@ export class IacStack extends Stack {
             ...{
                 transcriptTableArn: storageStack.transcriptTable.tableArn,
                 transcriptTableV2Arn: storageStack.transcriptTableV2.tableArn,
+                transcriptTableV3Arn: storageStack.transcriptTableV3.tableArn,
                 functionsImageRepositoryArn: process.env.AWSCDK_ECR_FUNCTIONS_REPOSITORYARN || "",
                 transcriptionMessagesQueue: streamingServerStack.outputQueue,
                 destinationTopic: pipelineStack.topic,

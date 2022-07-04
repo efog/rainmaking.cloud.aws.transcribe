@@ -21,6 +21,7 @@ export class FunctionsStackProps implements StackProps {
     description?: string;
     transcriptTableArn: string;
     transcriptTableV2Arn: string;
+    transcriptTableV3Arn: string;
     env?: Environment;
     functionsImageRepositoryArn: string;
     functionsTargetImageTag?: string;
@@ -57,6 +58,8 @@ export class FunctionsStack extends Stack {
         }
         const transcriptsTable = Table.fromTableArn(this, "transcriptsTable", props?.transcriptTableArn || "");
         const transcriptsTableV2 = Table.fromTableArn(this, "transcriptsTableV2", props?.transcriptTableV2Arn || "");
+        const transcriptsTableV3 = Table.fromTableArn(this, "transcriptsTableV3", props?.transcriptTableV3Arn || "");
+
         const transcriptMessageEventFunction = new DockerImageFunction(this, "transcriptMessageEventFunction", ({
             ...props,
             ...{
@@ -69,11 +72,11 @@ export class FunctionsStack extends Stack {
                     description: `uses image tag ${props?.functionsTargetImageTag || baseFunctionsImageTag}`,
                     removalPolicy: RemovalPolicy.RETAIN,
                 },
-                description: "Transcripts Message Queue Handler V2",
+                description: "Transcripts Message Queue Handler V3",
                 environment: {
                     DEBUG: props?.debugNames || "*,-not_this",
                     FUNCTIONS_IMAGE_TAG: props?.functionsTargetImageTag || baseFunctionsImageTag,
-                    DYNAMODB_TRANSCRIPTS_TABLENAME: transcriptsTableV2.tableName,
+                    DYNAMODB_TRANSCRIPTS_TABLENAME: transcriptsTableV3.tableName,
                     SNS_OUTPUT_DESTINATION_TOPIC_NAME: props?.destinationTopic.topicName,
                 },
                 logRetention: RetentionDays.ONE_DAY,
@@ -106,5 +109,6 @@ export class FunctionsStack extends Stack {
         this.transcriptMessageEventFunction = transcriptMessageEventFunction;
         transcriptsTable.grantReadWriteData(this.lambdaExecutionRole);
         transcriptsTableV2.grantReadWriteData(this.lambdaExecutionRole);
+        transcriptsTableV3.grantReadWriteData(this.lambdaExecutionRole);
     }
 }

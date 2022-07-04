@@ -29,9 +29,7 @@ phases:
             - ./makeappspec.js _appspec.json $TASK_ARN > appspec.json
 artifacts:
     files:
-        - 'appspec.yaml'
         - 'appspec.json'
-        - 'buildspec.yaml'
         - 'taskdef.json'
     base-directory: applications/server/src
     name: /builds/$CODEBUILD_BUILD_NUMBER.zip
