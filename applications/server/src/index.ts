@@ -76,7 +76,7 @@ wssForAudio.on("connection", async (inputWebSocket: WebSocket, request: any, cli
         service.onmessage(async (evt: TranscribeMessageEvent) => {
             trace(`${JSON.stringify(evt)}`);
             const eventTimestamp = DateTime.utc().toISO();
-            if (evt.Transcript.Results.length > 0 && !evt.Transcript.Results[0].IsPartial) {
+            if (evt.Transcript.Results.length > 0) {
                 const payload = Object.assign(evt.Transcript, { speakerName, callId, eventTimestamp });
                 await sqsService.sendMessage(payload, queueUrl);
             }
