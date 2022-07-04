@@ -101,6 +101,7 @@ export class StreamingServerStack extends Stack {
         const repository = Repository.fromRepositoryArn(this, "streamingServerImageRepository", this.props?.repositoryArn || "");
         const transcriptsTable = Table.fromTableArn(this, "transcriptsTable", this.props?.transcriptsTableArn || "");
         const transcriptsTableV2 = Table.fromTableArn(this, "transcriptsTableV2", this.props?.transcriptsTableV2Arn || "");
+        const transcriptsTableV3 = Table.fromTableArn(this, "transcriptsTableV3", this.props?.transcriptsTableV3Arn || "");
 
         // Setup roles
         this.executionRole = new Role(this, "streamingServerExecutionRole", {
@@ -281,5 +282,6 @@ export class StreamingServerStack extends Stack {
         this.outputQueue = targetQueue;
         transcriptsTable.grantReadWriteData(this.taskRole);
         transcriptsTableV2.grantReadWriteData(this.taskRole);
+        transcriptsTableV3.grantReadWriteData(this.taskRole);
     }
 }

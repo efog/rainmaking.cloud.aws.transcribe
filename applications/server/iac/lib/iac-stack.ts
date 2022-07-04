@@ -84,6 +84,7 @@ export class IacStack extends Stack {
         streamingServerProps.targetAvailabilityZones = Stack.of(this).availabilityZones;
         streamingServerProps.transcriptsTableArn = storageStack.transcriptTable.tableArn;
         streamingServerProps.transcriptsTableV2Arn = storageStack.transcriptTableV2.tableArn;
+        streamingServerProps.transcriptsTableV3Arn = storageStack.transcriptTableV3.tableArn;
         streamingServerProps.inputTopic = pipelineStack.topic;
 
         // eslint-disable-next-line no-unused-vars
