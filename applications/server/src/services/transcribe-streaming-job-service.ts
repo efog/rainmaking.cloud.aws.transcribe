@@ -5,6 +5,7 @@ import * as marshaller from "@aws-sdk/eventstream-marshaller";
 import * as utilUtf8Node from "@aws-sdk/util-utf8-node";
 import * as v4 from "./crypto-service";
 import { EventEmitter } from "stream";
+import { convertAudioToBinaryMessage } from "./audio-services";
 
 const debug = Debug("DEBUG::SERVER::SERVICES::transcribe-streaming-job-service.ts");
 const trace = Debug("TRACE::SERVER::SERVICES::transcribe-streaming-job-service.ts");
@@ -126,8 +127,10 @@ export class TranscribeStreamingJobService {
      * @param audioEvent Message event from audio input socket
      */
     private handleAudioMessage(audioEvent: MessageEvent) {
-        const data = audioEvent.data as Buffer;
+        const data = convertAudioToBinaryMessage(audioEvent.data as Buffer);
         this.transcribeSocket?.send(data);
+        // const data = audioEvent.data as Buffer;
+        // this.transcribeSocket?.send(data);
     }
 
     /**

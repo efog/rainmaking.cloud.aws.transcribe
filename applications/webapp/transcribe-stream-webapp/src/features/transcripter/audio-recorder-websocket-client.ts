@@ -65,11 +65,14 @@ export async function connectRecorderSocket(webSocketHost: string,
     region: string) : Promise<AudioRecorderWebSocketClient> {
 
     let webSocket: WebSocket;
-    const sampleRate = 44100;
+    let sampleRate = 44100;
+    let outputSampleRate = 44100;
 
     const audioHandler = (e: { data: Float32Array }) => {
-        const audioEventMessage = convertAudioToBinaryMessage(e.data, sampleRate);
-        webSocket?.send(audioEventMessage);
+        // const audioEventMessage = convertAudioToBinaryMessage(e.data, sampleRate);
+        // webSocket?.send(audioEventMessage);
+        const audioArrayBuffer = downsampleAndEncodeAudio(e.data, sampleRate, outputSampleRate);
+        webSocket?.send(audioArrayBuffer);
     };
 
     const audioRecorder = await Recorder.start({
@@ -79,7 +82,8 @@ export async function connectRecorderSocket(webSocketHost: string,
     const webSocketUrl = new URL(`${webSocketHost === "localhost" ? "ws" : "wss"}://${webSocketHost}:${webSocketPort}/api/stt/transcribe`);
     console.log(webSocketUrl);
 
-    webSocketUrl.searchParams.append("sampleRate", sampleRate.toString());
+    sampleRate = audioRecorder.audioSampleRate;
+    webSocketUrl.searchParams.append("sampleRate", outputSampleRate.toString());
     webSocketUrl.searchParams.append("language", language);
     webSocketUrl.searchParams.append("callId", callId);
     webSocketUrl.searchParams.append("region", region);
@@ -101,7 +105,13 @@ function convertAudioToBinaryMessage(audioChunk: Float32Array, outputSampleRate:
     //convert the JSON object + headers into a binary event stream message
     let binary = eventStreamMarshaller.marshall(audioEventMessage);
     return binary;
-}   
+}
+
+function downsampleAndEncodeAudio(audioChunk: Float32Array, inputSampleRate: number = 44100, outputSampleRate: number = 44100) : ArrayBuffer {
+    let downsampledBuffer = downsampleBuffer(audioChunk, inputSampleRate, outputSampleRate);
+    let pcmEncodedBuffer = pcmEncode(downsampledBuffer);
+    return pcmEncodedBuffer;
+}
 
 function downsampleBuffer(buffer: Float32Array, inputSampleRate = 44100, outputSampleRate = 16000) {
 

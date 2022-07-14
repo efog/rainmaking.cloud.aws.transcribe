@@ -10,6 +10,7 @@ import { SQSService } from "./services/sqs-service";
 import { Duplex } from "stream";
 import { v4 as uuidv4 } from "uuid";
 import { TranscriptPollEvent, TranscriptsPoller } from "./services/transcripts-poller";
+import { S3Service, S3StorageServiceSettings } from "./services/s3-service";
 
 const app = express();
 const debug = Debug("DEBUG::SERVER::index.ts");
@@ -36,6 +37,7 @@ server.on("request", app.get("/api/stt/healthcheck", (request: Request, response
 wssForAudio.on("connection", async (inputWebSocket: WebSocket, request: any, client: any) => {
 
     const path = new URL(request.url, "http://localhost");
+    const targetBucketName = process.env.S3_AUDIOFILESSTORAGE_BUCKET_NAME || "";
     let awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID;
     let awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
     let awsSessionToken = process.env.AWS_SESSION_TOKEN;
@@ -52,7 +54,8 @@ wssForAudio.on("connection", async (inputWebSocket: WebSocket, request: any, cli
     const sampleRate = path.searchParams.get("sampleRate") || "44100";
     const speakerName = path.searchParams.get("username") || "somebody";
     const callId = path.searchParams.get("callId") || "abcde1234";
-    const settings = { awsAccessKeyId, awsSecretAccessKey, awsSessionToken, inputWebSocket, languageCode, region, sampleRate, speakerName } as TranscribeStreamingJobServiceSettings;
+    const transcribeStreamingJobServiceSettings = { awsAccessKeyId, awsSecretAccessKey, awsSessionToken, inputWebSocket, languageCode, region, sampleRate, speakerName } as TranscribeStreamingJobServiceSettings;
+    const audioFileStorageServiceSettings = { callId, speakerName, targetBucketName } as S3StorageServiceSettings;
 
     const connectionTimeout = setTimeout(() => {
         clearTimeout(connectionTimeout);
@@ -61,7 +64,7 @@ wssForAudio.on("connection", async (inputWebSocket: WebSocket, request: any, cli
 
     trace(`connection opened for path ${path}`);
     try {
-        const service = TranscribeStreamingJobService.transcribeStream(settings);
+        const transcribeService = TranscribeStreamingJobService.transcribeStream(transcribeStreamingJobServiceSettings);
         const sqsService = new SQSService();
         const queueUrl = process.env.SQS_OUTPUT_QUEUE_URL || "";
         inputWebSocket.on("close", (ev: Event) => {
@@ -70,10 +73,10 @@ wssForAudio.on("connection", async (inputWebSocket: WebSocket, request: any, cli
                 clearTimeout(connectionTimeout);
             }
         });
-        service.onerror((err: ErrorMessageEvent) => {
+        transcribeService.onerror((err: ErrorMessageEvent) => {
             error(JSON.stringify(err));
         });
-        service.onmessage(async (evt: TranscribeMessageEvent) => {
+        transcribeService.onmessage(async (evt: TranscribeMessageEvent) => {
             trace(`${JSON.stringify(evt)}`);
             const eventTimestamp = DateTime.utc().toISO();
             if (evt.Transcript.Results.length > 0 && !evt.Transcript.Results[0].IsPartial) {
@@ -81,6 +84,8 @@ wssForAudio.on("connection", async (inputWebSocket: WebSocket, request: any, cli
                 await sqsService.sendMessage(payload, queueUrl);
             }
         });
+        // const s3Service = S3Service.forCallFile(audioFileStorageServiceSettings);
+        // s3Service.uploadFromAudioSocket(inputWebSocket);
     } catch (err: any) {
         error(err);
         inputWebSocket.close();

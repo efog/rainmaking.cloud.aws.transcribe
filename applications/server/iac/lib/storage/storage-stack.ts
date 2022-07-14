@@ -1,5 +1,5 @@
 import {
-    Environment, Stack, StackProps,
+    Environment, RemovalPolicy, Stack, StackProps,
 } from "aws-cdk-lib";
 import {
     AttributeType, BillingMode, Table,
@@ -21,6 +21,7 @@ export class StorageStack extends Stack {
     public transcriptTable: Table;
     public transcriptTableV2: Table;
     public transcriptTableV3: Table;
+    transcriptTableV4: Table;
 
     /**
      * Default constructor
@@ -97,5 +98,26 @@ export class StorageStack extends Stack {
             },
         });
         this.transcriptTableV3 = transcriptsTableV3;
+
+        const transcriptsTableV4 = new Table(this, "transcriptsTableV4", {
+            billingMode: BillingMode.PAY_PER_REQUEST,
+            removalPolicy: RemovalPolicy.RETAIN,
+            partitionKey: {
+                name: "resultId",
+                type: AttributeType.STRING,
+            },
+            sortKey: {
+                name: "eventTimestamp",
+                type: AttributeType.STRING,
+            },
+        });
+        transcriptsTableV4.addLocalSecondaryIndex({
+            indexName: "callId",
+            sortKey: {
+                name: "callId",
+                type: AttributeType.STRING,
+            },
+        });
+        this.transcriptTableV4 = transcriptsTableV4;
     }
 }

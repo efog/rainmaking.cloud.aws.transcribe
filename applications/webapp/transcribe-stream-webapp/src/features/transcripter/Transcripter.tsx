@@ -127,11 +127,17 @@ class Transcripter extends Component<TranscripterProps | TranscripterInternalPro
                         <h3>What is this demo?</h3>
                         <p>
                             This demonstration application captures a person's voice and uses Amazon Transcribe speech to text technology to transform the input 
-                            into a sequence of message.
+                            into a sequence of messages.
                         </p>
                         <h3>How to use it?</h3>
                         <p>
                             Select a language (french or english) and press the record button to start a recording. The recording maximum duration is 30 seconds.
+                        </p>
+                        <h3>Some Caveats</h3>
+                        <p>
+                            On Chromium based browsers, it's easier to detect the input sample rate whereas
+                            Mozilla Firefox doesn't provide/couldn't read the value. Additionnaly, the web application always resamples the data back to 44.1KHz. The results are therefore
+                            dependant on the browser and the hardware used (I've got better results with a 48KHz microphone).
                         </p>
                     </div>
                 </div>
