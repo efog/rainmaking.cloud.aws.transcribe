@@ -84,8 +84,8 @@ wssForAudio.on("connection", async (inputWebSocket: WebSocket, request: any, cli
                 await sqsService.sendMessage(payload, queueUrl);
             }
         });
-        const s3Service = S3Service.forCallFile(audioFileStorageServiceSettings);
-        s3Service.uploadFromAudioSocket(inputWebSocket);
+        // const s3Service = S3Service.forCallFile(audioFileStorageServiceSettings);
+        // s3Service.uploadFromAudioSocket(inputWebSocket);
     } catch (err: any) {
         error(err);
         inputWebSocket.close();
