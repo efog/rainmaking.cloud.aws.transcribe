@@ -2,7 +2,7 @@
 
 # Realtime Speech to Text Using Amazon Transcribe 
 
-In the DataLab at Intact, we've built an awesome Post Call Analysis (PCA) tool that leverages Amazon Transcribe and custom built NLP models. Two years later, we now support quite a few use cases across different business units with the same solution as a foundation. It processes over 110 000 minutes of audio per day, making the solution the single most consumer of Amazon Transcribe in Canada. Moreover, we use our pipeline for operational and analytical purpose with merely simple configuration changes through the awesome power of Amazon Step Functions and Amazon Lambda. However, today, we don't handle calls in realtime and it's been an ask for a while: how would this work? This article describes how, in an simple manner, a realtime speech to text solution using Amazon Transcribe that could be leveraged to implement a realtime call analysis solution.
+Part of my work is to describe and explain technically how to achieve such and such use case using AWS. I've done numerous things across the years but this has been a recurrent ask: how could we build a realtime speech to text processing pipeline using Amazon Transcribe. This article is about just this: describe how to build a simple yet extremely efficient (read: cost-effective) realtime speech to text in AWS.
 
 ## The Solution at a High Level
 
